@@ -21,8 +21,28 @@ jobs:
       run: dotnet build --no-restore
     - name: Test
       run: dotnet test --no-build --verbosity normal
+    - name: Publish Omtt.Api
+      uses: brandedoutcast/publish-nuget@v2.5.5
+      with:
+          PROJECT_FILE_PATH: Omtt.Api/Omtt.Api.csproj
+          NUGET_KEY: ${{secrets.NUGET_TOKEN}}
+    - name: Publish Omtt.Parser
+      uses: brandedoutcast/publish-nuget@v2.5.5
+      with:
+          PROJECT_FILE_PATH: Omtt.Parser/Omtt.Parser.csproj
+          NUGET_KEY: ${{secrets.NUGET_TOKEN}}
+    - name: Publish Omtt.Statements
+      uses: brandedoutcast/publish-nuget@v2.5.5
+      with:
+          PROJECT_FILE_PATH: Omtt.Statements/Omtt.Statements.csproj
+          NUGET_KEY: ${{secrets.NUGET_TOKEN}}
     - name: Publish Omtt.Generator
       uses: brandedoutcast/publish-nuget@v2.5.5
       with:
           PROJECT_FILE_PATH: Omtt.Generator/Omtt.Generator.csproj
+          NUGET_KEY: ${{secrets.NUGET_TOKEN}}
+    - name: Publish Omtt.Generator.Qr
+      uses: brandedoutcast/publish-nuget@v2.5.5
+      with:
+          PROJECT_FILE_PATH: Omtt.Generator.Qr/Omtt.Generator.Qr.csproj
           NUGET_KEY: ${{secrets.NUGET_TOKEN}}

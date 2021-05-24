@@ -4,12 +4,12 @@
         <TargetFramework>netstandard2.0</TargetFramework>
         <LangVersion>9</LangVersion>
         <Nullable>enable</Nullable>
-        <Title>Omtt Generator</Title>
+        <Title>Omtt</Title>
         <Authors>Ilia Tikhonov</Authors>
-        <Description>Main Omtt assembly</Description>
+        <Description>One More Template Transformer - powerful and flexible template engine for .NET</Description>
         <PackageProjectUrl>https://github.com/tihilv/Omtt</PackageProjectUrl>
         <RepositoryUrl>https://github.com/tihilv/Omtt</RepositoryUrl>
-        <Version>0.1.0</Version>
+        <Version>0.1.1</Version>
     </PropertyGroup>
 
     <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">

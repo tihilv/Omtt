@@ -6,10 +6,10 @@
         <Nullable>enable</Nullable>
         <Title>Omtt Api</Title>
         <Authors>Ilia Tikhonov</Authors>
-        <Description>Interface project for Omtt</Description>
+        <Description>Interface project for Omtt (One More Template Transformer)</Description>
         <PackageProjectUrl>https://github.com/tihilv/Omtt</PackageProjectUrl>
         <RepositoryUrl>https://github.com/tihilv/Omtt</RepositoryUrl>
-        <Version>0.1.0</Version>
+        <Version>0.1.1</Version>
     </PropertyGroup>
 
     <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">

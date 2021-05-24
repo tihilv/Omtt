@@ -5,6 +5,12 @@
         <RootNamespace>Omtt.Generator</RootNamespace>
         <LangVersion>9</LangVersion>
         <Nullable>enable</Nullable>
+        <Title>Omtt QR Addon</Title>
+        <Authors>Ilia Tikhonov</Authors>
+        <Description>QR addon for Omtt generator</Description>
+        <PackageProjectUrl>https://github.com/tihilv/Omtt</PackageProjectUrl>
+        <RepositoryUrl>https://github.com/tihilv/Omtt</RepositoryUrl>
+        <Version>0.1.0</Version>
     </PropertyGroup>
 
     <ItemGroup>

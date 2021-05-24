@@ -4,7 +4,12 @@
         <TargetFramework>netstandard2.0</TargetFramework>
         <LangVersion>9</LangVersion>
         <Nullable>enable</Nullable>
-        <PackageId>Omtt.Parser</PackageId>
+        <Title>Omtt Parser</Title>
+        <Authors>Ilia Tikhonov</Authors>
+        <Description>Text parser library for Omtt</Description>
+        <PackageProjectUrl>https://github.com/tihilv/Omtt</PackageProjectUrl>
+        <RepositoryUrl>https://github.com/tihilv/Omtt</RepositoryUrl>
+        <Version>0.1.0</Version>
     </PropertyGroup>
 
     <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">

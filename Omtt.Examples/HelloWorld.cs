@@ -109,6 +109,16 @@ namespace Omtt.Examples
                 "  4  8 12 16 20\r\n" +
                 "  5 10 15 20 25", result);
         }
+        
+        [Test]
+        public async Task SchemeGeneration()
+        {
+            var generator = TemplateTransformer.Create("<#<forEach source=\"this.ClassesB\"> {{parent.Str}} {{this.MyInt1 + this.MyInt2}}" +
+                                                       "<#<forEach source=\"this.Decimals\"> {{parent.parent.Str}} {{this}}#>" +
+                                                       "#>");
+            var dataStructure = await generator.GetSourceSchemeAsync();
+            Assert.AreEqual(" { ClassesB[] { Decimals[], MyInt1, MyInt2 }, Str }", dataStructure.ToString());
+        }
 
     }
 }

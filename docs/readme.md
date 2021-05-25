@@ -162,6 +162,8 @@ var result = await generator.GenerateTextAsync(rootDataObject);
 ```
 When transforming inner template, the operation can preserve the existing current object (like `write`, `fragment`, `code` operations) or to change it. In this case current objects form a stack, each previous element of it can be accessed via `parent` keywords if needed.  
 
+Operation names are case-sensitive.
+
 ### write
 The operation formats the expression to put it into the output stream. The default syntax is the following:
 
@@ -256,15 +258,68 @@ generator.WithQr();
 If `html` fragment is used, the operation wraps the resulting image to an embedded `img`. Otherwise it provides a base64 representation of the image.
 
 ## Expressions
+Every attribute of Omtt operation is an expression. An expression might be:
+- a literal: `123`, `'abc'`, `true`...
+- a property of a current object or parent: `this.SomeProperty`, `parent.parent.SomeArray[3].SomeProperty`.
+- an arithmetical expression involving literals or properties: `3*this.SomeProperty`.
+- a custom function call having N parameters: `SomeFunction(5, this.SomeProperty)`.
+- logical expression: `if (3>5) { true; } else { false; }`
+- assignment expression: `let c = 4`.
+- earlier declared variables: `c`.
+
+Every expression might end with semicolon. Multiple operations inside a `{...}` block must end with semicolon.
+
+Every expression returns a value. For blocks the last expression treated as the result of the block.
+
 ### Data Types
-### Common Operations
-#### Unary
-#### Binary
+
+Omtt has dynamic typing. In most cases the left operand in binary operations defines the resulting type.
+
+When dealing with data objects, operator overloading (`+, -, *, /`) and `IComparable` are supported.
+Using literals only a subset of CLR types can be expressed:
+
+|Type| CLR Type | Example | Unary Operations | Binary Operations |
+| :----------- | :----------- | :----------- |  :----------- | :----------- |
+| Integer | Int64 | 11 | - (minus) | +, -, /, *, <, =, >
+| Real | Decimal | 11.234 | - (minus) | +, -, /, *, <, =, >
+| String | String | 'str' | | +, <, =, >
+| Boolean | Boolean | true, false | ! (negation) | &, l, =
+| DateTime | DateTime | %15.09.2020% | |
+| Undefined | Object | null | |
+
+Binary operations are processed from left to right, priority can be changed with braces. 
+
+### Variables Scope
+
+A variable exists only within the operation scope containing the corresponding `let` expression. It is also available for and all inner operation scopes.
+
+Assignment of a variable is processed according to the following algorithm: 
+1. A variable is being searched by name starting from the current operation scope till the root.
+2. If the variable is found, the assignment is performed for the corresponding scope. 
+3. If the variable is not found, it is created for the current operation scope. 
+
+This allows to synchronize the variable value within inner scopes.
+
+Variables are case-sensitive. 
 
 ## Scheme Generation
 
+It might be useful to receive the appropriate data structure that is suitable for a given template. For instance, that might help to reduce the amount of columns in an SQL query, or to build an GraphQL query including minimum necessary amount of data.
+
+Omtt is able to reconstruct the data scheme by template:
+```c#
+var generator = TemplateTransformer.Create(
+    "<#<forEach source=\"this.ClassesB\"> {{parent.Str}} {{this.MyInt1 + this.MyInt2}}" +
+    "<#<forEach source=\"this.Decimals\"> {{parent.parent.Str}} {{this}}#>#>");
+var dataStructure = await generator.GetSourceSchemeAsync();
+Assert.AreEqual(
+    " { ClassesB[] { Decimals[], MyInt1, MyInt2 }, Str }", dataStructure.ToString());
+```
+
+Source scheme represents the hierarchical structure of classes and its properties that participate in template transformation. As templates have no information about data types, the source data scheme contains no type details either. The only assumption that can be made is `IsArray` attribute for every property. It sets to `true` if the property participates in `forEach` or `group` operation. 
+
 ## Extensions
-### Custom Markup
+### Custom Markup Operations
 ### Custom Functions
 ### Custom Write
 ### Custom Context

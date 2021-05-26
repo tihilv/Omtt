@@ -82,11 +82,11 @@ namespace Omtt.Statements
             return result;
         }
 
-        public virtual Object? ExecuteFunction(String name, IStatementContext statementContext, Object?[] arguments)
+        public virtual Object? ExecuteFunction(String name, Object?[] arguments)
         {
             var key = (name, (Byte) arguments.Length);
             if (_functions.TryGetValue(key, out var function))
-                return function.Execute(statementContext, arguments);
+                return function.Execute(arguments, this);
 
             throw new MissingMethodException($"Unknown function '{name}'\'{arguments.Length}.");
         }

@@ -1,7 +1,7 @@
 # Omtt - One More Template Transformer
 Omtt is a .NET-running text template engine. It transforms structured templates to an output stream using input data given. Omtt runs its own template markup syntax and supports simplified expression computations.
 
-## Feature List:
+## Feature List
 - Structured extendable markup.
 - Conditions, loops and grouping operations in templates.
 - Hierarchical source data support.
@@ -319,7 +319,165 @@ Assert.AreEqual(
 Source scheme represents the hierarchical structure of classes and its properties that participate in template transformation. As templates have no information about data types, the source data scheme contains no type details either. The only assumption that can be made is `IsArray` attribute for every property. It sets to `true` if the property participates in `forEach` or `group` operation. 
 
 ## Extensions
+Omtt is designed with extendability in mind. Template transformation might be performed using:
+- custom markup operations, 
+- custom expression functions, 
+- overloaded write operation, 
+- user-defined operation context.
+
 ### Custom Markup Operations
-### Custom Functions
+
+Operations are the main building blocks of Omtt. They define workflow of template processing and perform writing to the output stream. Omtt has a limited number of default operations but the list might be easily extended using custom operations.
+
+Assume the task is to implement an Omtt feature that converts inner template part to Base64 format. To make task slightly more complicated assume that sometimes the conversion should be performed using terminating `=` symbol, and sometimes it should be omitted.
+
+The task might be solved using custom markup operation that implements `ITemplateOperation` interface.
+
+The interface has three main parts: 
+- operation name (operations are case-sensitive),
+- main conversion method, 
+- method for extraction the data scheme of the operation.
+
+A sample implementation:
+```c#
+private sealed class Base64Operation : ITemplateOperation
+{
+    private const String TrimEqualsName = "trim";
+           
+    // Name of the operation to call in the template.
+    public String Name => "base64";
+            
+    // Main transformation function.
+    public async Task PerformAsync(OperationTemplatePart part, IGeneratorContext ctx)
+    {
+        // Check if inner part exists
+        if (part.InnerPart == null)
+            throw new ArgumentNullException("Operation content is null.");
+
+        Boolean trim = false;
+        // Get the format parameter taking into account that it might be not defined.
+        if (part.Parameters.TryGetValue(TrimEqualsName, out var trimExpr) && trimExpr != null)
+            trim = (Boolean)ctx.EvaluateStatement(trimExpr)!;
+                
+        using var memoryStream = new MemoryStream();
+        using (ctx.OverloadStream(memoryStream)) // Overload the output to the temporary stream...
+        {
+            await ctx.ExecuteAsync(part.InnerPart!, ctx.SourceData); // ... and process the inner part as a template
+        } // At this point the original output stream is restored
+
+        // Read the processed inner part from the temporary stream and convert it to Base64
+        memoryStream.Position = 0;
+        var result = Convert.ToBase64String(memoryStream.ToArray());
+
+        if (trim) // Apply termination trimming if needed
+            result = result.TrimEnd('=');
+                    
+        // Writes the result to the output stream
+        await ctx.WriteAsync(result);
+    }
+
+    // Function to implement the proper source scheme generation
+    public Task PerformAsync(OperationTemplatePart part, ISourceSchemeContext ctx)
+    {
+        // Process parameter
+        if (part.Parameters.TryGetValue(TrimEqualsName, out var formatExpr) && formatExpr != null)
+            ctx.EvaluateStatement(formatExpr);
+
+        // Process inner part
+        return ctx.ExecuteAsync(part.InnerPart!, ctx.SourceData);
+    }
+}
+```
+
+To use new operation it should be registered:
+```c#
+var generator = TemplateTransformer.Create("Hello, <#<base64>{{this.Name}}#>!");
+generator.AddOperation(new Base64Operation());
+var result = await generator.GenerateTextAsync(new {Name = "World"});
+Assert.AreEqual($"Hello, {Convert.ToBase64String(Encoding.UTF8.GetBytes("World"))}!", result);
+```
+
+Trim parameter is passed as any other expression:
+```c#
+var generator = TemplateTransformer.Create("Hello, <#<base64 trim=\"this.Trim\">{{this.Name}}#>!");
+generator.AddOperation(new Base64Operation());
+var result = await generator.GenerateTextAsync(new {Name = "World", Trim = true});
+Assert.AreEqual($"Hello, {Convert.ToBase64String(Encoding.UTF8.GetBytes("World")).TrimEnd('=')}!", result);
+```
+
+Source scheme generation also uses source data object properties:
+```c#
+var generator = TemplateTransformer.Create("Hello, <#<base64 trim=\"this.SomeTrim\">{{this.Name}}#>!");
+generator.AddOperation(new Base64Operation());
+var result = await generator.GetSourceSchemeAsync();
+Assert.AreEqual(" { Name, SomeTrim }", result.ToString());
+```
+
+### Custom Expression Functions
+
+Custom functions extend the functionality of Omtt on the expression level.
+
+Assume the task is to implement a function that calculates i'th Fibonacci number. 
+
+The task might be solved using custom function that implements `IStatementFunction` interface.
+
+The interface has three main parts:
+- function name (functions are case-sensitive),
+- number of arguments (functions are distinguished not only by names, but also by argument count - a kind of overloading feature),  
+- main calculation method.
+
+A sample implementation:
+```c#
+private class FibonacciFunction: IStatementFunction
+{
+    // Name of the operation
+    public String Name => "fib";
+
+    // One argument: i'th number
+    public Byte ArgumentCount => 1;
+
+    public Object Execute(Object?[] input, IStatementContext statementContext)
+    {
+        // Convert the single parameter to the desired type
+        var n = Convert.ToUInt32(input[0]);
+                
+        // Calculate n'th Fibonacci number and return
+        return GetFibonacci(n);
+    }
+
+    private static UInt64 GetFibonacci(UInt32 n)
+    {
+        if (n < 2)
+            return n;
+        UInt64 a = 0;
+        UInt64 b = 1;
+
+        for (var i = 0; i < n; i++)
+        {
+            var c = a + b;
+            a = b;
+            b = c;
+        }
+        return a;  
+    }
+}
+```
+
+To use new function it should be registered:
+```c#
+var generator = TemplateTransformer.Create("{{this.N}}'th Fibonacci number is {{fib(this.N)}}");
+generator.AddFunction(new FibonacciFunction());
+var result = await generator.GenerateTextAsync(new {N = 6});
+Assert.AreEqual("6'th Fibonacci number is 8", result);
+```
+
+As it's a function, it can be used for expression calculations:
+```c#
+var generator = TemplateTransformer.Create("{{this.N+1}}'th Fibonacci number is {{fib(this.N-1)+fib(this.N)}}");
+generator.AddFunction(new FibonacciFunction());
+var result = await generator.GenerateTextAsync(new {N = 6});
+Assert.AreEqual("7'th Fibonacci number is 13", result);
+```
+
 ### Custom Write
 ### Custom Context

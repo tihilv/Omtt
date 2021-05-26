@@ -18,7 +18,7 @@ namespace Omtt.Statements.Terms
 
         public Object? Calculate(IStatementContext context)
         {
-            return context.ExecuteFunction(_name, context, _arguments.Select(a=>a.Calculate(context)).ToArray());
+            return context.ExecuteFunction(_name, _arguments.Select(a=>a.Calculate(context)).ToArray());
         }
     }
 }

@@ -52,11 +52,6 @@ namespace Omtt.Generator.Contexts
             return _outputStream.WriteAsync(buffer, 0, buffer.Length);
         }
 
-        public Object? EvaluateStatement(IStatement statement)
-        {
-            return statement.Execute(_currentStatementContext);
-        }
-
         protected override GeneratorContext CreateChildContext(Object? data)
         {
             return new GeneratorContext(Operations, _outputStream, Contexts, data, FragmentType, _createStatementContextFunc);

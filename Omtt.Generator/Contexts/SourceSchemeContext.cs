@@ -58,7 +58,7 @@ namespace Omtt.Generator.Contexts
             {
             }
 
-            public override Object? ExecuteFunction(String name, IStatementContext statementContext, Object?[] arguments)
+            public override Object? ExecuteFunction(String name, Object?[] arguments)
             {
                 if (arguments.Any())
                     return arguments[0];

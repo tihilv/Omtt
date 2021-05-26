@@ -59,6 +59,9 @@ namespace Omtt.Generator.Operations
             if (part.Parameters.TryGetValue(DefaultTemplateParameterNames.Culture, out var cultureExpr))
                 ctx.EvaluateStatement(cultureExpr);
 
+            if (part.Parameters.TryGetValue(DefaultTemplateParameterNames.Align, out var alignExpr))
+                ctx.EvaluateStatement(alignExpr);
+            
             return Task.CompletedTask;
         }
 

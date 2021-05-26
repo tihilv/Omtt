@@ -131,6 +131,8 @@ namespace Omtt.Statements.Terms
                 current = int32Value / Convert.ToInt32(second);
             else if (current is Int64 int64Value)
                 current = int64Value / Convert.ToInt64(second);
+            else if (current is UInt64 uint64Value)
+                current = uint64Value / Convert.ToUInt64(second);
             else if (current is Double doubleValue)
                 current = doubleValue / Convert.ToDouble(second);
             else if (current is Decimal decimalValue)
@@ -149,6 +151,8 @@ namespace Omtt.Statements.Terms
                 current = int32Value * Convert.ToInt32(second);
             else if (current is Int64 int64Value)
                 current = int64Value * Convert.ToInt64(second);
+            else if (current is UInt64 uint64Value)
+                current = uint64Value * Convert.ToUInt64(second);
             else if (current is Double doubleValue)
                 current = doubleValue * Convert.ToDouble(second);
             else if (current is Decimal decimalValue)
@@ -167,6 +171,8 @@ namespace Omtt.Statements.Terms
                 current = int32Value - Convert.ToInt32(second);
             else if (current is Int64 int64Value)
                 current = int64Value - Convert.ToInt64(second);
+            else if (current is UInt64 uint64Value)
+                current = uint64Value - Convert.ToUInt64(second);
             else if (current is Double doubleValue)
                 current = doubleValue - Convert.ToDouble(second);
             else if (current is Decimal decimalValue)
@@ -187,6 +193,8 @@ namespace Omtt.Statements.Terms
                 current = int32Value + Convert.ToInt32(second);
             else if (current is Int64 int64Value)
                 current = int64Value + Convert.ToInt64(second);
+            else if (current is UInt64 uint64Value)
+                current = uint64Value + Convert.ToUInt64(second);
             else if (current is Double doubleValue)
                 current = doubleValue + Convert.ToDouble(second);
             else if (current is Decimal decimalValue)

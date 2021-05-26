@@ -7,7 +7,7 @@ using Omtt.Generator.Extensions;
 
 namespace Omtt.Examples
 {
-    public class Tests
+    public class HelloWorld
     {
         [Test]
         public async Task NoParamHelloWorld()

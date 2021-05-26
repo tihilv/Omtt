@@ -12,11 +12,20 @@ namespace Omtt.Api.TemplateModel
         private readonly ITemplatePart? _innerPart;
         private readonly Dictionary<String, IStatement> _parameters;
 
+        /// <summary>
+        /// Given operation name.
+        /// </summary>
         public String OperationName => _operationName;
         public ITemplateOperation? CachedTemplateOperation;
 
+        /// <summary>
+        /// Inner template part attached to the operation.
+        /// </summary>
         public ITemplatePart? InnerPart => _innerPart;
 
+        /// <summary>
+        /// Operation parameters.
+        /// </summary>
         public Dictionary<String, IStatement> Parameters => _parameters;
 
         public OperationTemplatePart(String operationName, ITemplatePart? innerPart, IEnumerable<OperationParameter> parameters)

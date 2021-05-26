@@ -49,7 +49,7 @@ namespace Omtt.Generator.Operations
                 }
 
                 memoryStream.Position = 0;
-                return Encoding.UTF8.GetString(memoryStream.GetBuffer());
+                return Encoding.UTF8.GetString(memoryStream.ToArray());
             }
         }
 

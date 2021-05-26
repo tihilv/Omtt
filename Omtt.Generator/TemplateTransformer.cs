@@ -38,16 +38,29 @@ namespace Omtt.Generator
             AddOperation(new CodeOperation());
         }
 
+        /// <summary>
+        /// Adds a new markup operation.
+        /// </summary>
+        /// <param name="operation">New operation</param>
         public void AddOperation(ITemplateOperation operation)
         {
             _operations[operation.Name] = operation;
         }
 
+        /// <summary>
+        /// Adds a new custom function for expressions processing.
+        /// </summary>
+        /// <param name="function"></param>
         public void AddFunction(IStatementFunction function)
         {
             _functions.Add(function);
         }
         
+        /// <summary>
+        /// Creates an instance of TemplateTransformer initialized with given template.
+        /// </summary>
+        /// <param name="textContent">A stream of Omtt template in string format</param>
+        /// <returns>A task for receiving new Omtt instance</returns>
         public static async Task<TemplateTransformer> CreateAsync(Stream textContent)
         {
             var parser = new TemplateModelParser();
@@ -56,6 +69,11 @@ namespace Omtt.Generator
             return new TemplateTransformer(templateModel);
         }
 
+        /// <summary>
+        /// Creates an instance of TemplateTransformer initialized with given template.
+        /// </summary>
+        /// <param name="content">Omtt template in string format</param>
+        /// <returns>New Omtt instance</returns>
         public static TemplateTransformer Create(String content)
         {
             var parser = new TemplateModelParser();
@@ -64,6 +82,13 @@ namespace Omtt.Generator
             return new TemplateTransformer(templateModel);
         }
         
+        /// <summary>
+        /// Transforms template with the given data and writes it to the output stream.  
+        /// </summary>
+        /// <param name="data">Source data object for template transformation</param>
+        /// <param name="outputStream">Output stream for the result</param>
+        /// <param name="createStatementContextDelegate">An optional delegate for creation a custom statement context</param>
+        /// <returns></returns>
         public Task GenerateAsync(Object? data, Stream outputStream, CreateStatementContextDelegate? createStatementContextDelegate = null)
         {
             var ctx = new GeneratorContext(outputStream, createStatementContextDelegate);
@@ -72,6 +97,11 @@ namespace Omtt.Generator
             return ctx.ExecuteAsync(_templateModel, data);
         }
 
+        /// <summary>
+        /// Returns source data object scheme information that corresponds to the template.
+        /// </summary>
+        /// <param name="rootCtx">An optional custom source scheme context.</param>
+        /// <returns></returns>
         public async Task<SourceScheme> GetSourceSchemeAsync(ISourceSchemeContext? rootCtx = null)
         {
             var ctx = rootCtx??new SourceSchemeContext();

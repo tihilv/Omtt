@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 using Omtt.Api.DataModel;
@@ -47,6 +46,11 @@ namespace Omtt.Generator.Contexts
             return result!;
         }
 
+        /// <summary>
+        /// Creates a child context.
+        /// </summary>
+        /// <param name="data">Current data object</param>
+        /// <returns>Child source scheme context</returns>
         protected override SourceSchemeContext CreateChildContext(Object? data)
         {
             return new SourceSchemeContext(Operations, Contexts, data, FragmentType);

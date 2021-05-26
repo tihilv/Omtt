@@ -480,4 +480,34 @@ Assert.AreEqual("7'th Fibonacci number is 13", result);
 ```
 
 ### Custom Write
+
+The `write` is the most important markup operation of Omtt. This means, in different situation it might be useful to adjust the behavior of that operation fully controlling the output. 
+
+For instance, these features might be requested:
+- string representation of custom data types,
+- data filtration, 
+- symbol escaping for new fragment types, 
+- new formatting options...
+
+These tasks can be solved using descendant of `WriteOperation` class.
+
+There are two methods to override:
+```c#
+protected virtual String? FormatResult(Object? value, String? format, CultureInfo culture, IGeneratorContext generatorContext);
+
+protected virtual String FormatFragment(String valueStr, String fragmentType);
+```
+To register the new implementation of `write` markup operation `AddOperation` method can be used.
+
 ### Custom Context
+
+For some rare cases it might be necessary to share some additional data between markup operations and expression functions. It might be implemented by using custom contexts:
+
+- `StatementContext`  
+A factory method for statement context creation is passed as a parameter of `GenerateAsync` method. As input, current data object and parent statement context (if any) are passed.
+  
+
+- `SourceSchemeContext`  
+Root context should be passed as a parameter of `GetSourceSchemeAsync` method.  
+Children contexts should be created using overriden function:  
+`protected abstract T CreateChildContext(Object? data);`

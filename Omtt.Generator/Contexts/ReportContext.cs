@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Omtt.Api.Generation;
@@ -13,7 +12,7 @@ namespace Omtt.Generator.Contexts
 {
     public delegate IStatementContext CreateStatementContextDelegate(Object? sourceData, IStatementContext? parentStatementContext);
 
-    public class GeneratorContext : ProcessingContext<GeneratorContext>, IGeneratorContext
+    internal sealed class GeneratorContext : ProcessingContext<GeneratorContext>, IGeneratorContext
     {
         private Stream _outputStream;
         private readonly CreateStatementContextDelegate? _createStatementContextFunc;
@@ -21,7 +20,7 @@ namespace Omtt.Generator.Contexts
 
         public IStatementContext StatementContext => _currentStatementContext;
         
-        protected GeneratorContext(Dictionary<String, ITemplateOperation>? operations, Stream outputStream, Stack<GeneratorContext> contexts, Object? sourceData, String? fragmentType, CreateStatementContextDelegate? createStatementContextFunc):
+        private GeneratorContext(Dictionary<String, ITemplateOperation>? operations, Stream outputStream, Stack<GeneratorContext> contexts, Object? sourceData, String? fragmentType, CreateStatementContextDelegate? createStatementContextFunc):
             base (operations, contexts, fragmentType, sourceData)
         {
             _outputStream = outputStream;

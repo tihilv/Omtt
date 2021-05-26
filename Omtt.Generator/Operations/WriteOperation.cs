@@ -8,6 +8,9 @@ using Omtt.Api.TemplateModel;
 
 namespace Omtt.Generator.Operations
 {
+    /// <summary>
+    /// Default implementation of `write` markup operation.
+    /// </summary>
     public class WriteOperation: ITemplateOperation
     {
         public String Name => CommonOperations.WriteOperation;
@@ -65,6 +68,14 @@ namespace Omtt.Generator.Operations
             return Task.CompletedTask;
         }
 
+        /// <summary>
+        /// Virtual method for formatting a value to a string according to format string and culture.
+        /// </summary>
+        /// <param name="value">Value to format</param>
+        /// <param name="format">Format strng</param>
+        /// <param name="culture">Culture</param>
+        /// <param name="generatorContext">Current generator context</param>
+        /// <returns>Formatted string</returns>
         protected virtual String? FormatResult(Object? value, String? format, CultureInfo culture, IGeneratorContext generatorContext)
         {
             if (!String.IsNullOrEmpty(format))
@@ -114,6 +125,13 @@ namespace Omtt.Generator.Operations
             return value?.ToString();
         }
 
+        /// <summary>
+        /// Virtual method for escaping a string according to fragment type.
+        /// </summary>
+        /// <param name="valueStr">String to escape</param>
+        /// <param name="fragmentType">Fragment type</param>
+        /// <returns>Escaped string</returns>
+        /// <exception cref="ArgumentException">Thrown when no known fragment type is provided</exception>
         protected virtual String FormatFragment(String valueStr, String fragmentType)
         {
             if (fragmentType.Equals(CommonFragmentTypes.Xml, StringComparison.InvariantCultureIgnoreCase))

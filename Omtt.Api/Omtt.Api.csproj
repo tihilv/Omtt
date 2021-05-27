@@ -9,7 +9,7 @@
         <Description>Interface project for Omtt (One More Template Transformer)</Description>
         <PackageProjectUrl>https://github.com/tihilv/Omtt</PackageProjectUrl>
         <RepositoryUrl>https://github.com/tihilv/Omtt</RepositoryUrl>
-        <Version>0.1.1</Version>
+        <Version>1.0.0</Version>
     </PropertyGroup>
 
     <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">

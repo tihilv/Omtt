@@ -37,11 +37,17 @@ namespace Omtt.Statements
 
         Token GetToken(Int32 shift = 0)
         {
+            if (_currentPosition >= _tokens.Count)
+                throw new LexicalException($"Unexpected end of the statement.");
+                
             return _tokens[_currentPosition + shift];
         }
 
-        Token NextToken()
+        Token? NextToken()
         {
+            if (_currentPosition >= _tokens.Count)
+                return null;
+            
             var result = GetToken();
             _currentPosition++;
             return result;
@@ -277,7 +283,7 @@ namespace Omtt.Statements
         {
             var token = NextToken();
 
-            if (token.Type != type || (values.Length > 0 && !values.Contains(token.Value)))
+            if (token == null || token.Value.Type != type || (values.Length > 0 && !values.Contains(token.Value.Value)))
                 throw new LexicalException($"'{String.Join(ExpressionLiterals.ParameterSeparator, values)}' {type} expected.");
         }
     }

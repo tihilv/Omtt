@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using Omtt.Api.Exceptions;
 using Omtt.Parser.Lexical;
 
 namespace Omtt.Parser.Builder
@@ -17,6 +18,9 @@ namespace Omtt.Parser.Builder
 
         internal Lexem GetNext()
         {
+            if (_index >= _lexems.Count)
+                throw new LexicalException($"Unexpected end of the template.");
+            
             return _lexems[_index++];
         }
 

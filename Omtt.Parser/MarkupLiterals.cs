@@ -2,7 +2,7 @@ using System;
 
 namespace Omtt.Parser
 {
-    internal sealed class LexicalLiterals
+    internal sealed class MarkupLiterals
     {
         internal const Char PipeSeparator = '|';
         

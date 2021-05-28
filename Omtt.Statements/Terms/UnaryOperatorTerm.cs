@@ -6,10 +6,10 @@ namespace Omtt.Statements.Terms
 {
     internal sealed class UnaryOperatorTerm : ITerm
     {
-        private readonly String _op;
+        private readonly Operator _op;
         private readonly ITerm _term;
 
-        internal UnaryOperatorTerm(String op, ITerm term)
+        internal UnaryOperatorTerm(Operator op, ITerm term)
         {
             _op = op;
             _term = term;
@@ -23,10 +23,10 @@ namespace Omtt.Statements.Terms
             if (termValue is SourceScheme)
                 return termValue;
 
-            if (_op == "!" && termValue is Boolean booleanValue)
+            if (_op == Operator.Not && termValue is Boolean booleanValue)
                 return !booleanValue;
 
-            if (_op == "-" && termValue != null)
+            if (_op == Operator.Minus && termValue != null)
             {
                 if (termValue is Int32 intValue)
                     return -intValue;

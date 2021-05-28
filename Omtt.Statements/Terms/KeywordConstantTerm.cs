@@ -5,14 +5,14 @@ namespace Omtt.Statements.Terms
 {
     internal sealed class KeywordConstantTerm: ITerm
     {
-        private Object? _value;
+        private readonly Object? _value;
         internal KeywordConstantTerm(String identifier)
         {
-            if (identifier == "true")
+            if (identifier == ExpressionLiterals.TrueKeyword)
                 _value = true;
-            else if (identifier == "false")
+            else if (identifier == ExpressionLiterals.FalseKeyword)
                 _value = false;
-            else if (identifier == "null")
+            else if (identifier == ExpressionLiterals.NullKeyword)
                 _value = null;
         }
 

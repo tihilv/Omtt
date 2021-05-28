@@ -10,17 +10,17 @@ namespace Omtt.Parser.Lexical
     {
         private static readonly String[] TextModeLiterals = new[]
         {
-            LexicalLiterals.OpenExpression, 
-            LexicalLiterals.OpenSymbol,
-            LexicalLiterals.CloseSymbol
+            MarkupLiterals.OpenExpression, 
+            MarkupLiterals.OpenSymbol,
+            MarkupLiterals.CloseSymbol
         };
         private static readonly String[] SymbolModeLiterals = new[] {
-            LexicalLiterals.AssignSymbol, 
-            LexicalLiterals.CloseExpression, 
-            LexicalLiterals.CloseSymbol,
-            LexicalLiterals.QuoteSymbol, 
-            LexicalLiterals.SpaceSymbol, 
-            LexicalLiterals.CloseTagSymbol};
+            MarkupLiterals.AssignSymbol, 
+            MarkupLiterals.CloseExpression, 
+            MarkupLiterals.CloseSymbol,
+            MarkupLiterals.QuoteSymbol, 
+            MarkupLiterals.SpaceSymbol, 
+            MarkupLiterals.CloseTagSymbol};
 
         internal async Task<List<Lexem>> ParseAsync(Stream stream)
         {
@@ -53,19 +53,19 @@ namespace Omtt.Parser.Lexical
                 if (!String.IsNullOrEmpty(text))
                     result.Add(new Lexem(LexemType.Text, text));
 
-                if (!String.IsNullOrEmpty(symbol) && symbol != LexicalLiterals.SpaceSymbol)
+                if (!String.IsNullOrEmpty(symbol) && symbol != MarkupLiterals.SpaceSymbol)
                     result.Add(new Lexem(LexemType.Symbol, symbol));
 
                 foundExitSymbol = exitSymbols.Contains(symbol);
                 
-                if (symbol == LexicalLiterals.OpenExpression)
-                    AddTextAndSymbol(source, result, LexicalLiterals.CloseExpression);
+                if (symbol == MarkupLiterals.OpenExpression)
+                    AddTextAndSymbol(source, result, MarkupLiterals.CloseExpression);
 
-                else if (symbol == LexicalLiterals.QuoteSymbol)
-                    AddTextAndSymbol(source, result, LexicalLiterals.QuoteSymbol);
+                else if (symbol == MarkupLiterals.QuoteSymbol)
+                    AddTextAndSymbol(source, result, MarkupLiterals.QuoteSymbol);
 
-                else if (!foundExitSymbol && symbol != LexicalLiterals.CloseSymbol && inTextMode)
-                    ProcessContent(source, result, false, new [] {LexicalLiterals.CloseTagSymbol, LexicalLiterals.CloseExpression});
+                else if (!foundExitSymbol && symbol != MarkupLiterals.CloseSymbol && inTextMode)
+                    ProcessContent(source, result, false, new [] {MarkupLiterals.CloseTagSymbol, MarkupLiterals.CloseExpression});
             }
         }
 

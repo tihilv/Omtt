@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using Omtt.Api.Exceptions;
 
 namespace Omtt.Statements
@@ -14,14 +13,43 @@ namespace Omtt.Statements
             _input = input.Replace("\r\n", " ");
         }
 
-        private readonly Char[] _symbols = new[] {'{','}','(', ')', '[', ']', '.', ',', ';', '+', '-', '*', '/', '&', '|', '<', '>', '=', '!'};
+        private static readonly HashSet<Char> _symbols = new HashSet<Char>
+        {
+            ExpressionLiterals.BlockBegin[0],
+            ExpressionLiterals.BlockEnd[0],
+            ExpressionLiterals.OpenBracket[0],
+            ExpressionLiterals.CloseBracket[0],
+            ExpressionLiterals.ArrayOpenBracket[0],
+            ExpressionLiterals.ArrayCloseBracket[0],
+            ExpressionLiterals.PropertyAccessor[0], 
+            ExpressionLiterals.ParameterSeparator[0], 
+            ExpressionLiterals.StatementSeparator[0], 
+            ExpressionLiterals.PlusKeyword[0], 
+            ExpressionLiterals.MinusKeyword[0], 
+            ExpressionLiterals.MultKeyword[0], 
+            ExpressionLiterals.DivKeyword[0],
+            ExpressionLiterals.AndKeyword[0],
+            ExpressionLiterals.OrKeyword[0],
+            ExpressionLiterals.LtKeyword[0],
+            ExpressionLiterals.GtKeyword[0],
+            ExpressionLiterals.EqKeyword[0],
+            ExpressionLiterals.NotKeyword[0]
+        };
 
         Boolean IsSymbol(Char c)
         {
             return _symbols.Contains(c);
         }
 
-        private readonly String[] _keywords = new[] {LexicalLiterals.TrueKeyword, LexicalLiterals.FalseKeyword, LexicalLiterals.NullKeyword, LexicalLiterals.IfKeyword, LexicalLiterals.ElseKeyword, LexicalLiterals.LetKeyword};
+        private static readonly HashSet<String> _keywords = new HashSet<String>
+        {
+            ExpressionLiterals.TrueKeyword,
+            ExpressionLiterals.FalseKeyword, 
+            ExpressionLiterals.NullKeyword,
+            ExpressionLiterals.IfKeyword, 
+            ExpressionLiterals.ElseKeyword, 
+            ExpressionLiterals.LetKeyword
+        };
 
         Boolean IsKeyword(String identifier)
         {
@@ -39,7 +67,7 @@ namespace Omtt.Statements
             {
                 if (currentType == TokenType.StringConstant)
                 {
-                    if (c == LexicalLiterals.StringBoundary)
+                    if (c == ExpressionLiterals.StringBoundary)
                         ProcessCurrentTokenIfExists(ref currentType, ref currentContent, result);
                     else
                         currentContent += c;
@@ -47,19 +75,19 @@ namespace Omtt.Statements
 
                 else if (currentType == TokenType.DateConstant)
                 {
-                    if (c == LexicalLiterals.DateBoundary)
+                    if (c == ExpressionLiterals.DateBoundary)
                         ProcessCurrentTokenIfExists(ref currentType, ref currentContent, result);
                     else
                         currentContent += c;
                 }
 
-                else if (currentType == TokenType.IntegerConstant && c == '.')
+                else if (currentType == TokenType.IntegerConstant && c == ExpressionLiterals.NumberDot)
                 {
                     currentType = TokenType.RealConstant;
                     currentContent += c;
                 }
                 
-                else if (currentType == TokenType.RealConstant && c == '.')
+                else if (currentType == TokenType.RealConstant && c == ExpressionLiterals.NumberDot)
                 {
                     throw new LexicalException("Wrong format");
                 }
@@ -71,7 +99,7 @@ namespace Omtt.Statements
                     result.Add(new Token(c.ToString(), TokenType.Symbol));
                 }
 
-                else if (c == LexicalLiterals.Space)
+                else if (c == ExpressionLiterals.Space)
                 {
                     ProcessCurrentTokenIfExists(ref currentType, ref currentContent, result);
                 }
@@ -79,11 +107,11 @@ namespace Omtt.Statements
                 {
                     if (currentType == null)
                     {
-                        if (c == LexicalLiterals.StringBoundary)
+                        if (c == ExpressionLiterals.StringBoundary)
                         {
                             currentType = TokenType.StringConstant;
                         }
-                        else if (c == LexicalLiterals.DateBoundary)
+                        else if (c == ExpressionLiterals.DateBoundary)
                         {
                             currentType = TokenType.DateConstant;
                         }

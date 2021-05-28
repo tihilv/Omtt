@@ -45,13 +45,13 @@ namespace Omtt.Parser.Builder
             if (lexem.Type == LexemType.Text)
                 return new TextTemplatePart(lexem.Content);
             
-            if (lexem.Type == LexemType.Symbol && lexem.Content == LexicalLiterals.OpenSymbol)
+            if (lexem.Type == LexemType.Symbol && lexem.Content == MarkupLiterals.OpenSymbol)
                 return GetOperationContent(source);
             
-            if (lexem.Type == LexemType.Symbol && lexem.Content == LexicalLiterals.OpenExpression)
+            if (lexem.Type == LexemType.Symbol && lexem.Content == MarkupLiterals.OpenExpression)
                 return GetExpressionContent(source);
             
-            if (lexem.Type == LexemType.Symbol && lexem.Content == LexicalLiterals.CloseSymbol)
+            if (lexem.Type == LexemType.Symbol && lexem.Content == MarkupLiterals.CloseSymbol)
                 return null;
 
             throw new LexicalException($"Unknown lexem {lexem}");
@@ -66,10 +66,10 @@ namespace Omtt.Parser.Builder
 
             var nextLexem = source.GetNext();
 
-            if (nextLexem.Type != LexemType.Symbol || nextLexem.Content != LexicalLiterals.CloseExpression)
+            if (nextLexem.Type != LexemType.Symbol || nextLexem.Content != MarkupLiterals.CloseExpression)
                 throw new LexicalException($"Wrong lexem for expression close: {content}");
 
-            var parsed = content.Content.Split(LexicalLiterals.PipeSeparator);
+            var parsed = content.Content.Split(MarkupLiterals.PipeSeparator);
 
             OperationParameter[] parameters;
 
@@ -118,7 +118,7 @@ namespace Omtt.Parser.Builder
             {
                 var nextLexem = source.GetNext();
 
-                if (nextLexem.Type == LexemType.Symbol && nextLexem.Content == LexicalLiterals.CloseTagSymbol)
+                if (nextLexem.Type == LexemType.Symbol && nextLexem.Content == MarkupLiterals.CloseTagSymbol)
                     break;
                 
                 if (nextLexem.Type != LexemType.Text)
@@ -127,11 +127,11 @@ namespace Omtt.Parser.Builder
                 var parameterName = nextLexem.Content;
                 
                 nextLexem = source.GetNext();
-                if (nextLexem.Type != LexemType.Symbol && nextLexem.Content != LexicalLiterals.AssignSymbol)
+                if (nextLexem.Type != LexemType.Symbol && nextLexem.Content != MarkupLiterals.AssignSymbol)
                     throw new LexicalException($"Wrong lexem for equals symbol: {nextLexem}");
 
                 nextLexem = source.GetNext();
-                if (nextLexem.Type != LexemType.Symbol && nextLexem.Content != LexicalLiterals.QuoteSymbol)
+                if (nextLexem.Type != LexemType.Symbol && nextLexem.Content != MarkupLiterals.QuoteSymbol)
                     throw new LexicalException($"Wrong lexem for quote symbol: {nextLexem}");
 
                 nextLexem = source.GetNext();
@@ -141,7 +141,7 @@ namespace Omtt.Parser.Builder
                 var parameterValue = nextLexem.Content;
                 
                 nextLexem = source.GetNext();
-                if (nextLexem.Type != LexemType.Symbol && nextLexem.Content != LexicalLiterals.QuoteSymbol)
+                if (nextLexem.Type != LexemType.Symbol && nextLexem.Content != MarkupLiterals.QuoteSymbol)
                     throw new LexicalException($"Wrong lexem for quote symbol: {nextLexem}");
                 
                 parameters.Add(new OperationParameter(parameterName, StatementParser.Parse(parameterValue)!));

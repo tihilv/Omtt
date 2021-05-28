@@ -14,6 +14,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Omtt.Generator.Qr", "Omtt.G
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Omtt.Examples", "Omtt.Examples\Omtt.Examples.csproj", "{2BC74CE1-7364-40B3-8631-0FCB780F436F}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Omtt.Benchmark", "Omtt.Benchmark\Omtt.Benchmark.csproj", "{F88CFD4F-0BE3-4763-B763-0B12039799DF}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -48,5 +50,9 @@ Global
 		{2BC74CE1-7364-40B3-8631-0FCB780F436F}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{2BC74CE1-7364-40B3-8631-0FCB780F436F}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{2BC74CE1-7364-40B3-8631-0FCB780F436F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F88CFD4F-0BE3-4763-B763-0B12039799DF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F88CFD4F-0BE3-4763-B763-0B12039799DF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F88CFD4F-0BE3-4763-B763-0B12039799DF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F88CFD4F-0BE3-4763-B763-0B12039799DF}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

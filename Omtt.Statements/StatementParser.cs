@@ -47,13 +47,13 @@ namespace Omtt.Statements
             return result;
         }
 
-        private readonly String[] _keywordConstant = new[] {LexicalLiterals.TrueKeyword, LexicalLiterals.FalseKeyword, LexicalLiterals.NullKeyword};
-        private readonly String[] _unaryOp = new[] {"-", "!"};
-        private readonly String[] _op = new[] {"+", "-", "*", "/", "&", "|", "<", ">", "="};
+        private readonly String[] _keywordConstant = new[] {ExpressionLiterals.TrueKeyword, ExpressionLiterals.FalseKeyword, ExpressionLiterals.NullKeyword};
+        private readonly String[] _unaryOp = new[] {ExpressionLiterals.MinusKeyword, ExpressionLiterals.NotKeyword};
+        private readonly String[] _op = new[] {ExpressionLiterals.PlusKeyword, ExpressionLiterals.MinusKeyword, ExpressionLiterals.MultKeyword, ExpressionLiterals.DivKeyword, ExpressionLiterals.AndKeyword, ExpressionLiterals.OrKeyword, ExpressionLiterals.LtKeyword, ExpressionLiterals.GtKeyword, ExpressionLiterals.EqKeyword};
 
         private IStatement? Compile()
         {
-            var blockStart = HasMoreTokens() && GetToken().Value == LexicalLiterals.BlockBegin;
+            var blockStart = HasMoreTokens() && GetToken().Value == ExpressionLiterals.BlockBegin;
             
             return CompileStatements(!blockStart);
         }
@@ -61,17 +61,17 @@ namespace Omtt.Statements
         private IStatement? CompileStatements(Boolean skipBraces = false)
         {
             if (!skipBraces)
-                GoToNextToken(TokenType.Symbol, LexicalLiterals.BlockBegin);
+                GoToNextToken(TokenType.Symbol, ExpressionLiterals.BlockBegin);
 
             List<IStatement> statements = new List<IStatement>();
 
-            while (HasMoreTokens() && GetToken().Value != LexicalLiterals.BlockEnd)
+            while (HasMoreTokens() && GetToken().Value != ExpressionLiterals.BlockEnd)
             {
                 statements.Add(CompileStatement());
             }
 
             if (!skipBraces)
-                GoToNextToken(TokenType.Symbol, LexicalLiterals.BlockEnd);
+                GoToNextToken(TokenType.Symbol, ExpressionLiterals.BlockEnd);
 
             if (statements.Count > 1)
                 return new MultipleStatements(statements);
@@ -85,9 +85,9 @@ namespace Omtt.Statements
 
             switch (currentToken.Value)
             {
-                case LexicalLiterals.IfKeyword:
+                case ExpressionLiterals.IfKeyword:
                     return CompieIfStatement();
-                case LexicalLiterals.LetKeyword:
+                case ExpressionLiterals.LetKeyword:
                     return CompileLetStatement();
                 default:
                     return CompileComputeStatement();
@@ -96,15 +96,15 @@ namespace Omtt.Statements
         
         private IfStatement CompieIfStatement()
         {
-            GoToNextToken(TokenType.Keyword, LexicalLiterals.IfKeyword);
-            GoToNextToken(TokenType.Symbol, "(");
+            GoToNextToken(TokenType.Keyword, ExpressionLiterals.IfKeyword);
+            GoToNextToken(TokenType.Symbol, ExpressionLiterals.OpenBracket);
             var expression = CompileExpression();
-            GoToNextToken(TokenType.Symbol, ")");
+            GoToNextToken(TokenType.Symbol, ExpressionLiterals.CloseBracket);
             IStatement? trueStatements = CompileStatements();
             IStatement? falseStatements = null;
-            if (HasMoreTokens() && GetToken().Type == TokenType.Keyword && GetToken().Value == LexicalLiterals.ElseKeyword)
+            if (HasMoreTokens() && GetToken().Type == TokenType.Keyword && GetToken().Value == ExpressionLiterals.ElseKeyword)
             {
-                GoToNextToken(TokenType.Keyword, LexicalLiterals.ElseKeyword);
+                GoToNextToken(TokenType.Keyword, ExpressionLiterals.ElseKeyword);
                 falseStatements = CompileStatements();
             }
             return new IfStatement(expression, trueStatements, falseStatements);
@@ -112,11 +112,11 @@ namespace Omtt.Statements
 
         private LetStatement CompileLetStatement()
         {
-            GoToNextToken(TokenType.Keyword, LexicalLiterals.LetKeyword);
+            GoToNextToken(TokenType.Keyword, ExpressionLiterals.LetKeyword);
             var variable = CompileVariable();
-            GoToNextToken(TokenType.Symbol, "=");
+            GoToNextToken(TokenType.Symbol, ExpressionLiterals.EqKeyword);
             var expression = CompileExpression();
-            GoToNextToken(TokenType.Symbol, ";");
+            GoToNextToken(TokenType.Symbol, ExpressionLiterals.StatementSeparator);
 
             return new LetStatement(variable, expression);
         }
@@ -125,7 +125,7 @@ namespace Omtt.Statements
         {
             var expression = CompileExpression();
             if (HasMoreTokens())
-                GoToNextToken(TokenType.Symbol, ";");
+                GoToNextToken(TokenType.Symbol, ExpressionLiterals.StatementSeparator);
 
             return new SingleStatement(expression);
         }
@@ -133,42 +133,42 @@ namespace Omtt.Statements
         private Variable CompileVariable()
         {
             bool firstTime = true;
-            List<VariablePathPair> pairs = new List<VariablePathPair>();
+            var pairs = new List<VariablePathPair>();
             do
             {
                 if (!firstTime)
-                    GoToNextToken(TokenType.Symbol, ".");
+                    GoToNextToken(TokenType.Symbol, ExpressionLiterals.PropertyAccessor);
                 
                 var name = GetToken().Value;
                 GoToNextToken(TokenType.Identifier);
                 Expression? arrayExpression = null;
-                if (HasMoreTokens() && GetToken().Value == "[")
+                if (HasMoreTokens() && GetToken().Value == ExpressionLiterals.ArrayOpenBracket)
                 {
-                    GoToNextToken(TokenType.Symbol, "[");
+                    GoToNextToken(TokenType.Symbol, ExpressionLiterals.ArrayOpenBracket);
                     arrayExpression = CompileExpression();
-                    GoToNextToken(TokenType.Symbol, "]");
+                    GoToNextToken(TokenType.Symbol, ExpressionLiterals.ArrayCloseBracket);
                 }
 
                 pairs.Add(new VariablePathPair(name, arrayExpression));
 
                 firstTime = false;
                 
-            } while (HasMoreTokens() && GetToken().Value == ".");
+            } while (HasMoreTokens() && GetToken().Value == ExpressionLiterals.PropertyAccessor);
 
             return new Variable(pairs);
         }
 
         private Expression CompileExpression()
         {
-            List<ITerm> terms = new List<ITerm>();
-            List<String> operators = new List<String>();
+            var terms = new List<ITerm>();
+            var operators = new List<Operator>();
 
             Boolean first = true;
             do
             {
                 if (!first)
                 {
-                    operators.Add(GetToken().Value);
+                    operators.Add(OperatorExtensions.FromString(GetToken().Value));
                     GoToNextToken(TokenType.Symbol, _op);
                 }
                 first = false;
@@ -216,7 +216,7 @@ namespace Omtt.Statements
 
             if (currentToken.Type == TokenType.Identifier)
             {
-                if (HasMoreTokens(1) && GetToken(1).Value == "(")
+                if (HasMoreTokens(1) && GetToken(1).Value == ExpressionLiterals.OpenBracket)
                     return CompileSubroutineCall();
                 else
                     return CompileVariable();
@@ -227,14 +227,14 @@ namespace Omtt.Statements
                 GoToNextToken(TokenType.Symbol, _unaryOp);
                 var op = currentToken.Value;
                 var term = CompileTerm();
-                return new UnaryOperatorTerm(op, term);
+                return new UnaryOperatorTerm(OperatorExtensions.FromString(op), term);
             }
 
-            if (currentToken.Type == TokenType.Symbol && currentToken.Value == "(")
+            if (currentToken.Type == TokenType.Symbol && currentToken.Value == ExpressionLiterals.OpenBracket)
             {
-                GoToNextToken(TokenType.Symbol, "(");
+                GoToNextToken(TokenType.Symbol, ExpressionLiterals.OpenBracket);
                 var result = CompileExpression();
-                GoToNextToken(TokenType.Symbol, ")");
+                GoToNextToken(TokenType.Symbol, ExpressionLiterals.CloseBracket);
 
                 return result;
             }
@@ -247,11 +247,11 @@ namespace Omtt.Statements
             var name = GetToken().Value;
             GoToNextToken(TokenType.Identifier);
 
-            GoToNextToken(TokenType.Symbol, "(");
+            GoToNextToken(TokenType.Symbol, ExpressionLiterals.OpenBracket);
 
             var arguments = CompileExpressionList();
 
-            GoToNextToken(TokenType.Symbol, ")");
+            GoToNextToken(TokenType.Symbol, ExpressionLiterals.CloseBracket);
 
             return new SubroutineTerm(name, arguments);
         }
@@ -261,10 +261,10 @@ namespace Omtt.Statements
             var result = new List<Expression>();
 
             Boolean first = true;
-            while (GetToken().Value != ")")
+            while (GetToken().Value != ExpressionLiterals.CloseBracket)
             {
                 if (!first)
-                    GoToNextToken(TokenType.Symbol, ",");
+                    GoToNextToken(TokenType.Symbol, ExpressionLiterals.ParameterSeparator);
                 first = false;
 
                 result.Add(CompileExpression());
@@ -278,7 +278,7 @@ namespace Omtt.Statements
             var token = NextToken();
 
             if (token.Type != type || (values.Length > 0 && !values.Contains(token.Value)))
-                throw new LexicalException($"'{String.Join(",", values)}' {type} expected.");
+                throw new LexicalException($"'{String.Join(ExpressionLiterals.ParameterSeparator, values)}' {type} expected.");
         }
     }
 }

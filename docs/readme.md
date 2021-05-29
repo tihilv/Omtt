@@ -112,7 +112,7 @@ The first forEach `<#<forEach source=\"this\">` enumerates throw the source data
 In order to perform the inner loop `<#<forEach source=\"parent\">` on the same data, `parent` keyword is used. Data scope stack in this case on the first iteration:
 
 | Variable        | Value   |
-| --------------- |:------ :|
+| --------------- |:-------:|
 | `this`          | 1       |
 | `parent`        | [1, 5]  |
 

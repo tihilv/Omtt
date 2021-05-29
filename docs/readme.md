@@ -1,4 +1,8 @@
 # Omtt - One More Template Transformer
+
+![Build](https://github.com/tihilv/Omtt/actions/workflows/dotnet.yml/badge.svg) 
+![Nuget](https://img.shields.io/nuget/v/Omtt.Generator)
+
 Omtt is a .NET-running text template engine. It transforms structured templates to an output stream using input data given. Omtt runs its own template markup syntax and supports simplified expression computations.
 
 ## Feature List

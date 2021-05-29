@@ -3,7 +3,7 @@ Omtt is a .NET-running text template engine. It transforms structured templates 
 
 ## Feature List
 - Structured extendable markup.
-- Conditions, loops and grouping operations in templates.
+- Conditions, loops, and grouping operations in templates.
 - Hierarchical source data support.
 - Built-in simple expression evaluation.
 - Custom functions support.
@@ -13,7 +13,7 @@ Omtt is a .NET-running text template engine. It transforms structured templates 
 ## Reference Guide
 ### Hello World
 
-By default, any text is valid Omtt template and it's simply copied from input to the output without any change:
+By default, any text is a valid Omtt template and it's simply copied from input to the output without any change:
 
 ```c#
 var generator = TemplateTransformer.Create("Hello, World!");
@@ -21,7 +21,7 @@ var result = await generator.GenerateTextAsync(null);
 Assert.AreEqual("Hello, World!", result);
 ```
 
-Such example is not very useful as it's not parametrized, sp the easiest practical example of Omtt usage might be the following:
+Such example is not very useful as it's not parametrized, so the easiest practical example of Omtt usage might be the following:
 ```c#
 var generator = TemplateTransformer.Create("Hello, {{this}}!");
 var result = await generator.GenerateTextAsync("World");
@@ -30,14 +30,14 @@ Assert.AreEqual("Hello, World!", result);
 
 The first line creates an instance of Omtt which is configured to transform the template `"Hello, {{this}}!"`. The keyword `this` represents the current data object that is passed to Omtt in the second line (in this case it's a `"World"` string).
 
-Data objects might be single literals, classes or collections. In the following example a class with two properties is used:
+Data objects might be single literals, classes, or collections. In the following example a class with two properties is used:
 ```c#
 var generator = TemplateTransformer.Create("Hello, {{this.A}} and {{this.B}}!");
 var result = await generator.GenerateTextAsync(new {A = "Alice", B = "Bob"});
 Assert.AreEqual("Hello, Alice and Bob!", result);
 ```
 
-The Omtt can process not only plain data objects, but nested objects as well:
+The Omtt can process not only plain data objects but nested objects as well:
 ```c#
 var generator = TemplateTransformer.Create("Hello, {{this.A.Name}} and {{this.B.Name}}!");
 var result = await generator.GenerateTextAsync(new {A = new {Id = 1, Name = "Alice"}, B = new {Id = 2, Name = "Bob"}});
@@ -45,7 +45,7 @@ Assert.AreEqual("Hello, Alice and Bob!", result);
 ```
 
 ### Formatting
-A various formatting might be applied to the output:
+Various formatting might be applied to the output:
 ```c#
 var generator = TemplateTransformer.Create("{{this.Id|D3}}, {{this.FamilyName|u}}, {{this.Name}}");
 var result = await generator.GenerateTextAsync(new {Id = 7, Name = "James", FamilyName = "Bond"});
@@ -77,7 +77,7 @@ Here the full syntax of Omtt markup is presented. The operation starts with `<#`
 Note: `this` inside the loop body is moved to the currently processing element. 
 
 ### Conditions
-As we see, the resulting string is not formatted very nice as `and` string is added on each iteration, including the last one. This can be fixed using `if` markup:
+As we see, the resulting string is not formatted very nicely as `and` string is added on each iteration, including the last one. This can be fixed using `if` markup:
 ```c#
 var generator = TemplateTransformer.Create(
     "Hello, <#<forEach source=\"this\">{{this.Name}}<#<if clause=\"!$last\"> and #>#>!"
@@ -86,11 +86,11 @@ var result = await generator.GenerateTextAsync(new[] {new {Name = "Alice"}, new 
 Assert.AreEqual("Hello, Alice and Bob!", result);
 ```
 
-In this example the `and` string is put inside a conditional markup `if` that outputs the inner template content if the clause is true. The `clause="!$last"` is true when special loop's variable `$last` is false. So `and` substring is added for each loop iteration except the latest one.
+In this example, the `and` string is put inside a conditional markup `if` that outputs the inner template content if the clause is true. The `clause="!$last"` is true when special loop's variable `$last` is false. So `and` substring is added for each loop iteration except the latest one.
 
 ### Computations
 
-Omtt supports simple arithmetical operations that might be useful for reducing the amount of data for source objects. The following example demonstrate the creation of multiplication table that includes computations, inner loops and text alignment formatting:
+Omtt supports simple arithmetical operations that might be useful for reducing the amount of data for source objects. The following example demonstrates the creation of a multiplication table that includes computations, inner loops, and text alignment formatting:
 ```c#
 var generator = TemplateTransformer.Create(
     "<#<forEach source=\"this\"><#<forEach source=\"parent\">{{this*parent|||3}}#>\r\n#>"
@@ -109,14 +109,14 @@ The first forEach `<#<forEach source=\"this\">` enumerates throw the source data
 | --------------- |:-------:|
 | `this`          | [1, 5]  |
 
-In order to perform the inner loop `<#<forEach source=\"parent\">` on the same data, `parent` keyword is used. Data scope stack in this case on first iteration:
+In order to perform the inner loop `<#<forEach source=\"parent\">` on the same data, `parent` keyword is used. Data scope stack in this case on the first iteration:
 
 | Variable        | Value   |
 | --------------- |:------ :|
 | `this`          | 1       |
 | `parent`        | [1, 5]  |
 
-The content of the inner loop should access to the current number via `this` keyword, and the value of the parent's cycle via `parent` keyword. Data scope stack in the case for the first iteration of the inner loop:
+The content of the inner loop should access the current number via `this` keyword, and the value of the parent's cycle via `parent` keyword. Data scope stack in the case for the first iteration of the inner loop:
 
 | Variable        | Value   |
 | --------------- |:-------:|
@@ -160,7 +160,7 @@ An operation executes within its own current data object. The root of the data o
 ```c#
 var result = await generator.GenerateTextAsync(rootDataObject);
 ```
-When transforming inner template, the operation can preserve the existing current object (like `write`, `fragment`, `code` operations) or to change it. In this case current objects form a stack, each previous element of it can be accessed via `parent` keywords if needed.  
+When transforming the inner template, the operation can preserve the existing current object (like `write`, `fragment`, `code` operations) or change it. In this case, current objects form a stack, each previous element of it can be accessed via `parent` keywords if needed.  
 
 Operation names are case-sensitive.
 
@@ -184,15 +184,15 @@ As write operation is the most used operation in templates, a short form is intr
 
 `{{expression|format|culture|align}}`
 
-Each field except `expression` are optional and might be omitted. For instance, this syntax says that `SomeProperty` property of the current object should be aligned in 6 symbols to the right:
+Each field except `expression` is optional and might be omitted. For instance, this syntax says that `SomeProperty` property of the current object should be aligned in 6 symbols to the right:
 
 `{{this.SomeProperty|||6}}`
 
-Note: The operation ignores inner template part.
+Note: The operation ignores the inner template part.
 
 ### if
 
-The operation processes inner part only if the expression in the `clause` is true:
+The operation processes the inner part only if the expression in the `clause` is true:
 
 `<#<if clause="expression">conditional inner part #>`
 
@@ -200,7 +200,7 @@ The operation preserves the current object.
 
 ### forEach
 
-The operation treats `source` expression as `IEnumerable` and generates inner template for each element setting it as current data object.
+The operation treats `source` expression as `IEnumerable` and generates an inner template for each element setting it as a current data object.
 
 `<#<forEach source="expression">per-element inner part #>`
 
@@ -210,11 +210,11 @@ Also, during the execution operation provides the following service variables:
 
 These variables might be used to provide some conditional formatting, for instance, separators between items. 
 
-Note: as data access is organised using an enumerator, and streaming is used for output generation, it should be memory-safe to use forEach operation when transforming a big amount of data.  
+Note: as data access is organized using an enumerator, and streaming is used for output generation, it should be memory-safe to use `forEach` operation when transforming a big amount of data.  
 
 ### group
 
-The operation, treating `source` expression as `IEnumerable`, groups its content by the `key` expression and then repeats inner template for every group.
+The operation, treating `source` expression as `IEnumerable`, groups its content by the `key` expression and then repeats the inner template for every group.
 
 `<#<group source="expression" key="key expression">inner part using this.Key and this.Values>#>`
 
@@ -227,7 +227,7 @@ internal sealed class KeyValueList
 }
 ```
 
-Note: grouping suppose to have all the data in-memory before further processing, so avoid grouping of a large data sets.
+Note: grouping suppose to have all the data in memory before further processing, so avoid grouping of large data sets.
 
 ### fragment
 
@@ -235,7 +235,7 @@ A service operation that might be used together with `write` operation. It speci
 
 `<#<fragment type="expression">inner part#>`
 
-For the current moment `xml` and `html` fragment types are supported. Further fragment types can be added on demand or developed manually at the client side.
+For the current moment, `xml` and `html` fragment types are supported. Further fragment types can be added on-demand or developed manually at the client-side.
 
 The operation preserves the current object.
 
@@ -255,7 +255,7 @@ To attach the operation to the Omtt, the following code should be called before 
 generator.WithQr();
 ```
 
-If `html` fragment is used, the operation wraps the resulting image to an embedded `img`. Otherwise it provides a base64 representation of the image.
+If `html` fragment is used, the operation wraps the resulting image to an embedded `img`. Otherwise, it provides a base64 representation of the image.
 
 ## Expressions
 Every attribute of Omtt operation is an expression. An expression might be:
@@ -267,13 +267,13 @@ Every attribute of Omtt operation is an expression. An expression might be:
 - assignment expression: `let c = 4`.
 - earlier declared variables: `c`.
 
-Every expression might end with semicolon. Multiple operations inside a `{...}` block must end with semicolon.
+Every expression might end with a semicolon. Multiple operations inside a `{...}` block must end with a semicolon.
 
-Every expression returns a value. For blocks the last expression treated as the result of the block.
+Every expression returns a value. For blocks, the last expression treated as the result of the block.
 
 ### Data Types
 
-Omtt has dynamic typing. In most cases the left operand in binary operations defines the resulting type.
+Omtt has dynamic typing. In most cases, the left operand in binary operations defines the resulting type.
 
 When dealing with data objects, operator overloading (`+, -, *, /`) and `IComparable` are supported.
 Using literals only a subset of CLR types can be expressed:
@@ -294,17 +294,17 @@ Binary operations are processed from left to right, priority can be changed with
 A variable exists only within the operation scope containing the corresponding `let` expression. It is also available for and all inner operation scopes.
 
 Assignment of a variable is processed according to the following algorithm: 
-1. A variable is being searched by name starting from the current operation scope till the root.
+1. A variable is being searched by name starting from the current operation scope to the root.
 2. If the variable is found, the assignment is performed for the corresponding scope. 
 3. If the variable is not found, it is created for the current operation scope. 
 
-This allows to synchronize the variable value within inner scopes.
+This allows synchronizing  the variable value within inner scopes.
 
 Variables are case-sensitive. 
 
 ## Scheme Generation
 
-It might be useful to receive the appropriate data structure that is suitable for a given template. For instance, that might help to reduce the amount of columns in an SQL query, or to build an GraphQL query including minimum necessary amount of data.
+It might be useful to receive the appropriate data structure that is suitable for a given template. For instance, that might help to reduce the number of columns in an SQL query or to build a GraphQL query including the minimum necessary amount of data.
 
 Omtt is able to reconstruct the data scheme by template:
 ```c#
@@ -316,7 +316,7 @@ Assert.AreEqual(
     " { ClassesB[] { Decimals[], MyInt1, MyInt2 }, Str }", dataStructure.ToString());
 ```
 
-Source scheme represents the hierarchical structure of classes and its properties that participate in template transformation. As templates have no information about data types, the source data scheme contains no type details either. The only assumption that can be made is `IsArray` attribute for every property. It sets to `true` if the property participates in `forEach` or `group` operation. 
+Source scheme represents the hierarchical structure of classes and their properties that participate in template transformation. As templates have no information about data types, the source data scheme contains no type details either. The only assumption that can be made is `IsArray` attribute for every property. It sets to `true` if the property participates in `forEach` or `group` operation. 
 
 ## Extensions
 Omtt is designed with extendability in mind. Template transformation might be performed using:
@@ -327,16 +327,16 @@ Omtt is designed with extendability in mind. Template transformation might be pe
 
 ### Custom Markup Operations
 
-Operations are the main building blocks of Omtt. They define workflow of template processing and perform writing to the output stream. Omtt has a limited number of default operations but the list might be easily extended using custom operations.
+Operations are the main building blocks of Omtt. They define the workflow of template processing and perform writing to the output stream. Omtt has a limited number of default operations but the list might be easily extended using custom operations.
 
-Assume the task is to implement an Omtt feature that converts inner template part to Base64 format. To make task slightly more complicated assume that sometimes the conversion should be performed using terminating `=` symbol, and sometimes it should be omitted.
+Assume the task is to implement an Omtt feature that converts the inner template part to Base64 format. To make the task slightly more complicated assume that sometimes the conversion should be performed using the terminating `=` symbol, and sometimes it should be omitted.
 
-The task might be solved using custom markup operation that implements `ITemplateOperation` interface.
+The task might be solved using a custom markup operation that implements `ITemplateOperation` interface.
 
 The interface has three main parts: 
 - operation name (operations are case-sensitive),
 - main conversion method, 
-- method for extraction the data scheme of the operation.
+- method for extracting the data scheme of the operation.
 
 A sample implementation:
 ```c#
@@ -397,7 +397,7 @@ var result = await generator.GenerateTextAsync(new {Name = "World"});
 Assert.AreEqual($"Hello, {Convert.ToBase64String(Encoding.UTF8.GetBytes("World"))}!", result);
 ```
 
-Trim parameter is passed as any other expression:
+The trim parameter is passed as any other expression:
 ```c#
 var generator = TemplateTransformer.Create("Hello, <#<base64 trim=\"this.Trim\">{{this.Name}}#>!");
 generator.AddOperation(new Base64Operation());
@@ -419,11 +419,11 @@ Custom functions extend the functionality of Omtt on the expression level.
 
 Assume the task is to implement a function that calculates i'th Fibonacci number. 
 
-The task might be solved using custom function that implements `IStatementFunction` interface.
+The task might be solved using a custom function that implements `IStatementFunction` interface.
 
 The interface has three main parts:
 - function name (functions are case-sensitive),
-- number of arguments (functions are distinguished not only by names, but also by argument count - a kind of overloading feature),  
+- number of arguments (functions are distinguished not only by names but also by argument count - a kind of overloading feature),  
 - main calculation method.
 
 A sample implementation:
@@ -463,7 +463,7 @@ private class FibonacciFunction: IStatementFunction
 }
 ```
 
-To use new function it should be registered:
+To use the new function it should be registered:
 ```c#
 var generator = TemplateTransformer.Create("{{this.N}}'th Fibonacci number is {{fib(this.N)}}");
 generator.AddFunction(new FibonacciFunction());
@@ -481,7 +481,7 @@ Assert.AreEqual("7'th Fibonacci number is 13", result);
 
 ### Custom Write
 
-The `write` is the most important markup operation of Omtt. This means, in different situation it might be useful to adjust the behavior of that operation fully controlling the output. 
+The `write` is the most important markup operation of Omtt. This means, in a different situation, it might be useful to adjust the behavior of that operation fully controlling the output. 
 
 For instance, these features might be requested:
 - string representation of custom data types,
@@ -489,7 +489,7 @@ For instance, these features might be requested:
 - symbol escaping for new fragment types, 
 - new formatting options...
 
-These tasks can be solved using descendant of `WriteOperation` class.
+These tasks can be solved using a descendant of `WriteOperation` class.
 
 There are two methods to override:
 ```c#
@@ -501,7 +501,7 @@ To register the new implementation of `write` markup operation `AddOperation` me
 
 ### Custom Context
 
-For some rare cases it might be necessary to share some additional data between markup operations and expression functions. It might be implemented by using custom contexts:
+For some rare cases, it might be necessary to share some additional data between markup operations and expression functions. It might be implemented by using custom contexts:
 
 - `StatementContext`  
 A factory method for statement context creation is passed as a parameter of `GenerateAsync` method. As input, current data object and parent statement context (if any) are passed.
@@ -509,5 +509,5 @@ A factory method for statement context creation is passed as a parameter of `Gen
 
 - `SourceSchemeContext`  
 Root context should be passed as a parameter of `GetSourceSchemeAsync` method.  
-Children contexts should be created using overriden function:  
+Children contexts should be created using overridden function:  
 `protected abstract T CreateChildContext(Object? data);`

@@ -1,6 +1,5 @@
 using System;
 using System.Collections;
-using System.Diagnostics;
 using System.Threading.Tasks;
 using Omtt.Api.Generation;
 using Omtt.Api.TemplateModel;
@@ -30,24 +29,29 @@ namespace Omtt.Generator.Operations
                     Boolean isFirst = true;
                     Boolean hasNext;
                     ctx.StatementContext.SetVariable(IsLastVariable, false, true);
-                    do
-                    {
-                        var childPart = enumerator.Current;
-                        hasNext = enumerator.MoveNext();
-                    
-                        if (!hasNext)
-                            ctx.StatementContext.SetVariable(IsLastVariable, true, true);
-                        
-                        if (isFirst)
-                            ctx.StatementContext.SetVariable(IsFirstVariable, true, true);
-                        
-                        await ctx.ExecuteAsync(part.InnerPart!, childPart);
-                        if (isFirst)
+                    await ctx.WithContext(null, async childCtx =>
                         {
-                            isFirst = false;
-                            ctx.StatementContext.SetVariable(IsFirstVariable, false, true);
-                        }
-                    } while (hasNext);
+                            do
+                            {
+                                var childPart = enumerator.Current;
+                                childCtx.ReplaceCurrentData(childPart);
+                                hasNext = enumerator.MoveNext();
+
+                                if (!hasNext)
+                                    childCtx.StatementContext.SetVariable(IsLastVariable, true, true);
+
+                                if (isFirst)
+                                    childCtx.StatementContext.SetVariable(IsFirstVariable, true, true);
+
+                                await childCtx.ExecuteAsync(part.InnerPart!);
+                                if (isFirst)
+                                {
+                                    isFirst = false;
+                                    childCtx.StatementContext.SetVariable(IsFirstVariable, false, true);
+                                }
+
+                            } while (hasNext);
+                        });
                 }
             }
         }
@@ -56,7 +60,7 @@ namespace Omtt.Generator.Operations
         {
             var expr = part.Parameters[DefaultTemplateParameterNames.Source];
             var arrayElement = ctx.EvaluateStatement(expr, true);
-            return ctx.ExecuteAsync(part.InnerPart!, arrayElement);
+            return ctx.WithContext(arrayElement, childCtx => childCtx.ExecuteAsync(part.InnerPart!));
         }
     }
 }

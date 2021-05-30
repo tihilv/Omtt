@@ -11,7 +11,7 @@ namespace Omtt.Generator.Transformers
             var combinedPart = (CombinedTemplatePart) part;
 
             foreach (var child in combinedPart.Children)
-                await context.ExecuteAsync(child, context.SourceData);
+                await context.ExecuteAsync(child);
         }
     }
 }

@@ -1,5 +1,4 @@
 using System;
-using System.Diagnostics;
 using System.Threading.Tasks;
 using Omtt.Api.Generation;
 using Omtt.Api.TemplateModel;
@@ -10,7 +9,7 @@ namespace Omtt.Generator.Operations
     {
         public String Name => "if";
         
-        public async Task PerformAsync(OperationTemplatePart part, IGeneratorContext ctx)
+        public Task PerformAsync(OperationTemplatePart part, IGeneratorContext ctx)
         {
             if (part.InnerPart == null)
                 throw new ArgumentNullException("Operation content is null.");
@@ -18,14 +17,16 @@ namespace Omtt.Generator.Operations
             var expr = part.Parameters[DefaultTemplateParameterNames.Clause];
 
             if (ctx.EvaluateStatement(expr) is Boolean val && val)
-                await ctx.ExecuteAsync(part.InnerPart!, ctx.SourceData);
+                return ctx.ExecuteAsync(part.InnerPart!);
+            
+            return Task.CompletedTask;
         }
 
         public Task PerformAsync(OperationTemplatePart part, ISourceSchemeContext ctx)
         {
             var expr = part.Parameters[DefaultTemplateParameterNames.Clause];
             ctx.EvaluateStatement(expr);
-            return ctx.ExecuteAsync(part.InnerPart!, ctx.SourceData);
+            return ctx.ExecuteAsync(part.InnerPart!);
         }
     }
 }

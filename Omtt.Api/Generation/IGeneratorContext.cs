@@ -11,16 +11,27 @@ namespace Omtt.Api.Generation
     {
         void SetOperations(Dictionary<String, ITemplateOperation> operations);
         String? FragmentType { get; set; }
-        public Object? SourceData { get; }
+        
+        /// <summary>
+        /// Current statement context.
+        /// </summary>
+        IStatementContext StatementContext { get; }
+        
         Task ProcessOperationAsync(OperationTemplatePart operationPart);
 
         /// <summary>
         /// Processes template transformation.
         /// </summary>
         /// <param name="templatePart">Template to transform</param>
-        /// <param name="data">Current data object</param>
-        Task ExecuteAsync(ITemplatePart templatePart, Object? data);
+        Task ExecuteAsync(ITemplatePart templatePart);
         
+        /// <summary>
+        /// Performs the function creating a child context for the given data object. 
+        /// </summary>
+        /// <param name="data">New current data object</param>
+        /// <param name="func">Delegate to execute</param>
+        /// <typeparam name="TT">Return type</typeparam>
+        /// <returns>Result of the function</returns>
         TT WithContext<TT>(Object? data, Func<IProcessingContext, TT> func);
         
         /// <summary>
@@ -28,6 +39,12 @@ namespace Omtt.Api.Generation
         /// </summary>
         /// <param name="result">Stream to write</param>
         Task WriteAsync(String result);
+
+        /// <summary>
+        /// Sets new current data object. Old value becomes lost.
+        /// </summary>
+        /// <param name="sourceData">New data object</param>
+        void ReplaceCurrentData(Object? sourceData);
     }
     
     /// <summary>
@@ -35,10 +52,6 @@ namespace Omtt.Api.Generation
     /// </summary>
     public interface IGeneratorContext: IProcessingContext
     {
-        /// <summary>
-        /// Current statement context.
-        /// </summary>
-        IStatementContext StatementContext { get; }
         /// <summary>
         /// Temporary reroutes output to the given stream. 
         /// </summary>

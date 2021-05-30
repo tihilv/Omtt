@@ -91,10 +91,13 @@ namespace Omtt.Generator
         /// <returns></returns>
         public Task GenerateAsync(Object? data, Stream outputStream, CreateStatementContextDelegate? createStatementContextDelegate = null)
         {
-            var ctx = new GeneratorContext(outputStream, createStatementContextDelegate);
-            ctx.SetOperations(_operations);
-            ctx.StatementContext.AddFunctions(_functions);
-            return ctx.ExecuteAsync(_templateModel, data);
+            using (var streamWriter = GeneratorContext.CreateStreamWriter(outputStream))
+            {
+                var ctx = new GeneratorContext(streamWriter, data, createStatementContextDelegate);
+                ctx.SetOperations(_operations);
+                ctx.StatementContext.AddFunctions(_functions);
+                return ctx.ExecuteAsync(_templateModel);
+            }
         }
 
         /// <summary>
@@ -106,8 +109,9 @@ namespace Omtt.Generator
         {
             var ctx = rootCtx??new SourceSchemeContext();
             ctx.SetOperations(_operations);
-            var result = (ctx.SourceData as SourceScheme)??new SourceScheme(String.Empty, false);
-            await ctx.ExecuteAsync(_templateModel, result);
+            var result = (ctx.StatementContext.CurrentData as SourceScheme)??new SourceScheme(String.Empty, false);
+            ctx.ReplaceCurrentData(result);
+            await ctx.ExecuteAsync(_templateModel);
             return result;
         }
     }

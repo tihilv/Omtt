@@ -6,11 +6,13 @@ namespace Omtt.Statements
 {
     public class StatementContext : IStatementContext
     {
-        private readonly Object? _currentData;
+        private Object? _currentData;
         private readonly StatementContext? _parent;
         private readonly Dictionary<(String, Byte), IStatementFunction> _functions;
 
         private Dictionary<String, Object?>? _localVariables;
+
+        public Object? CurrentData => _currentData;
 
         public StatementContext(Object? currentData, IStatementContext? parent)
         {
@@ -20,6 +22,11 @@ namespace Omtt.Statements
             _functions = _parent?._functions ?? new Dictionary<(String, Byte), IStatementFunction>();
         }
 
+        public void ReplaceCurrentData(Object? currentData)
+        {
+            _currentData = currentData;
+        }
+        
         public Boolean TryFindVariable(String name, out Object? result)
         {
             switch (name)

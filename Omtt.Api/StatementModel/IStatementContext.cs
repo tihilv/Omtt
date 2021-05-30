@@ -9,6 +9,17 @@ namespace Omtt.Api.StatementModel
     public interface IStatementContext
     {
         /// <summary>
+        /// Current data object.
+        /// </summary>
+        Object? CurrentData { get; }
+
+        /// <summary>
+        /// Sets new current data object. Old value becomes lost.
+        /// </summary>
+        /// <param name="currentData">New data object</param>
+        void ReplaceCurrentData(Object? currentData);
+
+        /// <summary>
         /// Tries to search a variable by the name starting from the current context to the root.
         /// </summary>
         /// <param name="name">Name of the variable</param>

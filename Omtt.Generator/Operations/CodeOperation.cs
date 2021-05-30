@@ -9,12 +9,14 @@ namespace Omtt.Generator.Operations
     {
         public String Name => "code";
         
-        public async Task PerformAsync(OperationTemplatePart part, IGeneratorContext ctx)
+        public Task PerformAsync(OperationTemplatePart part, IGeneratorContext ctx)
         {
             var expr = part.Parameters[DefaultTemplateParameterNames.Source];
             ctx.EvaluateStatement(expr);
             if (part.InnerPart != null)
-                await ctx.ExecuteAsync(part.InnerPart!, ctx.SourceData);
+                return ctx.WithContext(ctx.StatementContext.CurrentData, childContext => childContext.ExecuteAsync(part.InnerPart!));
+                
+            return Task.CompletedTask;
         }
 
         public Task PerformAsync(OperationTemplatePart part, ISourceSchemeContext ctx)
@@ -22,7 +24,7 @@ namespace Omtt.Generator.Operations
             var expr = part.Parameters[DefaultTemplateParameterNames.Source];
             ctx.EvaluateStatement(expr);
             if (part.InnerPart != null)
-                return ctx.ExecuteAsync(part.InnerPart!, ctx.SourceData);
+                return ctx.WithContext(ctx.StatementContext.CurrentData, childContext => childContext.ExecuteAsync(part.InnerPart!));
             
             return Task.CompletedTask;
         }

@@ -6,18 +6,17 @@ using Omtt.Api.DataModel;
 using Omtt.Api.Generation;
 using Omtt.Api.StatementModel;
 using Omtt.Api.TemplateModel;
+using Omtt.Generator.Extensions;
 using Omtt.Statements;
 
 namespace Omtt.Generator.Contexts
 {
     public class SourceSchemeContext : ProcessingContext<SourceSchemeContext>, ISourceSchemeContext
     {
-        private readonly IStatementContext _currentStatementContext;
-
-        protected SourceSchemeContext(Dictionary<String, ITemplateOperation>? operations, Stack<SourceSchemeContext> contexts, Object? sourceData, String? fragmentType) : base(operations, contexts, fragmentType, sourceData)
+        protected SourceSchemeContext(Dictionary<String, ITemplateOperation>? operations, Stack<SourceSchemeContext> contexts, Object? sourceData, String? fragmentType) : 
+            base(operations, contexts, fragmentType,  
+                new StatementContextForSourceScheme(sourceData, contexts.PeekOrDefault()?.CurrentStatementContext))
         {
-            var parentContext = (contexts.Any())?contexts.Peek():null;
-            _currentStatementContext = new StatementContextForSourceScheme(sourceData, parentContext?._currentStatementContext);
         }
 
         public SourceSchemeContext(): this(null, new Stack<SourceSchemeContext>(), null, null)
@@ -38,7 +37,7 @@ namespace Omtt.Generator.Contexts
 
         public Object EvaluateStatement(IStatement statement, Boolean arrayExpected = false)
         {
-            var result = statement.Execute(_currentStatementContext);
+            var result = statement.Execute(CurrentStatementContext);
             
             if (arrayExpected && result is SourceScheme sourceScheme)
                 sourceScheme.SetIsArray();

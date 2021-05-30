@@ -2,30 +2,32 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Omtt.Api.Generation;
+using Omtt.Api.StatementModel;
 using Omtt.Api.TemplateModel;
 
 namespace Omtt.Generator.Contexts
 {
     public abstract class ProcessingContext<T>: IProcessingContext where T: class, IProcessingContext
     {
-        private readonly Object? _sourceData;
         protected Dictionary<String, ITemplateOperation>? Operations;
         protected readonly Stack<T> Contexts;
+        protected readonly IStatementContext CurrentStatementContext;
 
-        public Object? SourceData => _sourceData;
         public String? FragmentType { get; set; }
         
-        public void SetOperations(Dictionary<String, ITemplateOperation> operations)
-        {
-            Operations = operations;
-        }
+        public IStatementContext StatementContext => CurrentStatementContext;
 
-        protected ProcessingContext(Dictionary<String, ITemplateOperation>? operations, Stack<T> contexts, String? fragmentType, Object? sourceData)
+        protected ProcessingContext(Dictionary<String, ITemplateOperation>? operations, Stack<T> contexts, String? fragmentType, IStatementContext currentStatementContext)
         {
             Operations = operations;
             Contexts = contexts;
             FragmentType = fragmentType;
-            _sourceData = sourceData;
+            CurrentStatementContext = currentStatementContext;
+        }
+
+        public void SetOperations(Dictionary<String, ITemplateOperation> operations)
+        {
+            Operations = operations;
         }
 
         protected ITemplateOperation GetOperation(OperationTemplatePart operationTemplatePart)
@@ -42,19 +44,10 @@ namespace Omtt.Generator.Contexts
             throw new MissingMethodException($"Operation '{operationTemplatePart.OperationName}' not found.");
         }
 
-        public async Task ExecuteAsync(ITemplatePart templatePart, Object? data)
+        public async Task ExecuteAsync(ITemplatePart templatePart)
         {
-            var childCtx = CreateChildContext(data);
-            try
-            {
-                Contexts.Push(childCtx);
-                var transformer = ContentTransformers.Get(templatePart);
-                await transformer.TransformAsync(templatePart, childCtx);
-            }
-            finally
-            {
-                Contexts.Pop();
-            }
+            var transformer = ContentTransformers.Get(templatePart);
+            await transformer.TransformAsync(templatePart, this);
         }
 
         public TT WithContext<TT>(Object? data, Func<IProcessingContext, TT> func)
@@ -70,7 +63,12 @@ namespace Omtt.Generator.Contexts
                 Contexts.Pop();
             }
         }
-        
+
+        public void ReplaceCurrentData(Object? sourceData)
+        {
+            CurrentStatementContext.ReplaceCurrentData(sourceData);
+        }
+
         public abstract Task ProcessOperationAsync(OperationTemplatePart operationPart);
         public abstract Task WriteAsync(String result);
         protected abstract T CreateChildContext(Object? data);

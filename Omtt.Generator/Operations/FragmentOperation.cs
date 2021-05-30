@@ -19,7 +19,7 @@ namespace Omtt.Generator.Operations
             var type = ctx.EvaluateStatement(expr)?.ToString();
             var oldFragmentType = ctx.FragmentType;
             ctx.FragmentType = type;
-            await ctx.ExecuteAsync(part.InnerPart!, ctx.SourceData);
+            await ctx.ExecuteAsync(part.InnerPart!);
             ctx.FragmentType = oldFragmentType;
         }
 
@@ -27,7 +27,7 @@ namespace Omtt.Generator.Operations
         {
             var expr = part.Parameters[DefaultTemplateParameterNames.Type];
             ctx.EvaluateStatement(expr);
-            return ctx.ExecuteAsync(part.InnerPart!, ctx.SourceData);
+            return ctx.ExecuteAsync(part.InnerPart!);
         }
     }
 }

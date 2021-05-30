@@ -366,7 +366,7 @@ private sealed class Base64Operation : ITemplateOperation
         using var memoryStream = new MemoryStream();
         using (ctx.OverloadStream(memoryStream)) // Overload the output to the temporary stream...
         {
-            await ctx.ExecuteAsync(part.InnerPart!, ctx.SourceData); // ... and process the inner part as a template
+            await ctx.ExecuteAsync(part.InnerPart!); // ... and process the inner part as a template
         } // At this point the original output stream is restored
 
         // Read the processed inner part from the temporary stream and convert it to Base64
@@ -388,7 +388,7 @@ private sealed class Base64Operation : ITemplateOperation
             ctx.EvaluateStatement(formatExpr);
 
         // Process inner part
-        return ctx.ExecuteAsync(part.InnerPart!, ctx.SourceData);
+        return ctx.ExecuteAsync(part.InnerPart!);
     }
 }
 ```

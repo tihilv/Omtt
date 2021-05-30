@@ -45,7 +45,7 @@ namespace Omtt.Generator.Operations
             {
                 using (ctx.OverloadStream(memoryStream))
                 {
-                    await ctx.ExecuteAsync(part.InnerPart!, ctx.SourceData);
+                    await ctx.ExecuteAsync(part.InnerPart!);
                 }
 
                 memoryStream.Position = 0;
@@ -55,7 +55,7 @@ namespace Omtt.Generator.Operations
 
         public Task PerformAsync(OperationTemplatePart part, ISourceSchemeContext ctx)
         {
-            return ctx.ExecuteAsync(part.InnerPart!, ctx.SourceData);
+            return ctx.ExecuteAsync(part.InnerPart!);
         }
     }
 }

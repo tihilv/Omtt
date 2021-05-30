@@ -1,7 +1,6 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 using Omtt.Api.Generation;
@@ -20,9 +19,8 @@ namespace Omtt.Generator.Operations
             
             var sourceExpr = part.Parameters[DefaultTemplateParameterNames.Source];
             var keyExpr = part.Parameters[DefaultTemplateParameterNames.Key];
-            var valueCollection = ctx.EvaluateStatement(sourceExpr) as IEnumerable;
 
-            if (valueCollection != null)
+            if (ctx.EvaluateStatement(sourceExpr) is IEnumerable valueCollection)
             {
                 var dictionary = new Dictionary<Object?, KeyValueList>();
                 
@@ -38,8 +36,14 @@ namespace Omtt.Generator.Operations
                     list.Values.Add(childPart);
                 }
 
-                foreach (var group in dictionary.Values.OrderBy(v=>v.Key))
-                    await ctx.ExecuteAsync(part.InnerPart!, group);
+                await ctx.WithContext(null, async childContext =>
+                {
+                    foreach (var group in dictionary.Values.OrderBy(v => v.Key))
+                    {
+                        childContext.ReplaceCurrentData(group);
+                        await childContext.ExecuteAsync(part.InnerPart!);
+                    }
+                });
             }
         }
 
@@ -51,7 +55,7 @@ namespace Omtt.Generator.Operations
 
             var keyValue = ctx.WithContext(valueCollection, childContext => ((ISourceSchemeContext)childContext).EvaluateStatement(keyExpr));
 
-            return ctx.ExecuteAsync(part.InnerPart!, new KeyValueSchemeObject(keyValue, valueCollection));
+            return ctx.WithContext(new KeyValueSchemeObject(keyValue, valueCollection), childContext => childContext.ExecuteAsync(part.InnerPart!));
         }
     }
 

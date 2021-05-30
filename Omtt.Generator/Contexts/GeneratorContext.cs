@@ -1,11 +1,11 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Text;
 using System.Threading.Tasks;
 using Omtt.Api.Generation;
 using Omtt.Api.StatementModel;
 using Omtt.Api.TemplateModel;
+using Omtt.Generator.Extensions;
 using Omtt.Statements;
 
 namespace Omtt.Generator.Contexts
@@ -14,29 +14,26 @@ namespace Omtt.Generator.Contexts
 
     internal sealed class GeneratorContext : ProcessingContext<GeneratorContext>, IGeneratorContext
     {
-        private Stream _outputStream;
+        private StreamWriter _streamWriter;
         private readonly CreateStatementContextDelegate? _createStatementContextFunc;
-        private readonly IStatementContext _currentStatementContext;
 
-        public IStatementContext StatementContext => _currentStatementContext;
-        
-        private GeneratorContext(Dictionary<String, ITemplateOperation>? operations, Stream outputStream, Stack<GeneratorContext> contexts, Object? sourceData, String? fragmentType, CreateStatementContextDelegate? createStatementContextFunc):
-            base (operations, contexts, fragmentType, sourceData)
+        public static StreamWriter CreateStreamWriter(Stream outputStream)
         {
-            _outputStream = outputStream;
-            _createStatementContextFunc = createStatementContextFunc;
+            return new (outputStream, null, -1, true);
+        }
 
-            var parentContext = (contexts.Count > 0)?contexts.Peek():null;
-            
-            if (_createStatementContextFunc == null)
-                _currentStatementContext = new StatementContext(sourceData, parentContext?._currentStatementContext);
-            else
-                _currentStatementContext = _createStatementContextFunc(sourceData, parentContext?._currentStatementContext);
+        private GeneratorContext(Dictionary<String, ITemplateOperation>? operations, StreamWriter streamWriter, Stack<GeneratorContext> contexts, Object? sourceData, String? fragmentType, CreateStatementContextDelegate? createStatementContextFunc):
+            base (operations, contexts, fragmentType,
+                createStatementContextFunc == null ? new StatementContext(sourceData, contexts.PeekOrDefault()?.CurrentStatementContext) : createStatementContextFunc(sourceData, contexts.PeekOrDefault()?.CurrentStatementContext))
+        {
+            _streamWriter = streamWriter;
+            _createStatementContextFunc = createStatementContextFunc;
         }
         
-        public GeneratorContext(Stream outputStream, CreateStatementContextDelegate? getStatementContextFunc): this(null, outputStream, new Stack<GeneratorContext>(), null, null, getStatementContextFunc)
+        public GeneratorContext(StreamWriter streamWriter, Object? sourceData, CreateStatementContextDelegate? getStatementContextFunc): this(null, streamWriter, new Stack<GeneratorContext>(), sourceData, null, getStatementContextFunc)
         {
             Contexts.Push(this);
+            ReplaceCurrentData(sourceData);
         }
 
         public override Task ProcessOperationAsync(OperationTemplatePart operationPart)
@@ -47,13 +44,12 @@ namespace Omtt.Generator.Contexts
 
         public override Task WriteAsync(String result)
         {
-            var buffer = Encoding.UTF8.GetBytes(result);
-            return _outputStream.WriteAsync(buffer, 0, buffer.Length);
+            return _streamWriter.WriteAsync(result);
         }
 
         protected override GeneratorContext CreateChildContext(Object? data)
         {
-            return new GeneratorContext(Operations, _outputStream, Contexts, data, FragmentType, _createStatementContextFunc);
+            return new GeneratorContext(Operations, _streamWriter, Contexts, data, FragmentType, _createStatementContextFunc);
         }
 
         public IDisposable OverloadStream(Stream stream)
@@ -63,19 +59,21 @@ namespace Omtt.Generator.Contexts
 
         private class StreamOverload: IDisposable
         {
-            private readonly Stream _originalStream;
+            private readonly StreamWriter _originalStreamWriter;
             private readonly GeneratorContext _context;
 
             public StreamOverload(GeneratorContext context, Stream newStream)
             {
                 _context = context;
-                _originalStream = _context._outputStream;
-                _context._outputStream = newStream;
+                _originalStreamWriter = _context._streamWriter;
+                _context._streamWriter = CreateStreamWriter(newStream);
             }
 
             public void Dispose()
             {
-                _context._outputStream = _originalStream;
+                _context._streamWriter.Flush();
+                _context._streamWriter.Dispose();
+                _context._streamWriter = _originalStreamWriter;
             }
         }
     }

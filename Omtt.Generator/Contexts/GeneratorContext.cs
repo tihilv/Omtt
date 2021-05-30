@@ -1,79 +1,82 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
+using System.Text;
 using System.Threading.Tasks;
-using Omtt.Api.Exceptions;
 using Omtt.Api.Generation;
+using Omtt.Api.StatementModel;
 using Omtt.Api.TemplateModel;
+using Omtt.Statements;
 
 namespace Omtt.Generator.Contexts
 {
-    public abstract class ProcessingContext<T>: IProcessingContext where T: class, IProcessingContext
+    public delegate IStatementContext CreateStatementContextDelegate(Object? sourceData, IStatementContext? parentStatementContext);
+
+    internal sealed class GeneratorContext : ProcessingContext<GeneratorContext>, IGeneratorContext
     {
-        private readonly Object? _sourceData;
-        protected Dictionary<String, ITemplateOperation>? Operations;
-        protected readonly Stack<T> Contexts;
+        private Stream _outputStream;
+        private readonly CreateStatementContextDelegate? _createStatementContextFunc;
+        private readonly IStatementContext _currentStatementContext;
 
-        public Object? SourceData => _sourceData;
-        public String? FragmentType { get; set; }
+        public IStatementContext StatementContext => _currentStatementContext;
         
-        public void SetOperations(Dictionary<String, ITemplateOperation> operations)
+        private GeneratorContext(Dictionary<String, ITemplateOperation>? operations, Stream outputStream, Stack<GeneratorContext> contexts, Object? sourceData, String? fragmentType, CreateStatementContextDelegate? createStatementContextFunc):
+            base (operations, contexts, fragmentType, sourceData)
         {
-            Operations = operations;
-        }
+            _outputStream = outputStream;
+            _createStatementContextFunc = createStatementContextFunc;
 
-        protected ProcessingContext(Dictionary<String, ITemplateOperation>? operations, Stack<T> contexts, String? fragmentType, Object? sourceData)
-        {
-            Operations = operations;
-            Contexts = contexts;
-            FragmentType = fragmentType;
-            _sourceData = sourceData;
-        }
-
-        protected ITemplateOperation GetOperation(OperationTemplatePart operationTemplatePart)
-        {
-            if (operationTemplatePart.CachedTemplateOperation != null)
-                return operationTemplatePart.CachedTemplateOperation;
-
-            if (Operations != null && Operations.TryGetValue(operationTemplatePart.OperationName, out var operation))
-            {
-                operationTemplatePart.CachedTemplateOperation = operation;
-                return operation;
-            }
-
-            throw new MissingMethodException($"Operation '{operationTemplatePart.OperationName}' not found.");
-        }
-
-        public async Task ExecuteAsync(ITemplatePart templatePart, Object? data)
-        {
-            var childCtx = CreateChildContext(data);
-            try
-            {
-                Contexts.Push(childCtx);
-                var transformer = ContentTransformers.Get(templatePart);
-                await transformer.TransformAsync(templatePart, childCtx);
-            }
-            finally
-            {
-                Contexts.Pop();
-            }
-        }
-
-        public TT WithContext<TT>(Object? data, Func<IProcessingContext, TT> func)
-        {
-            var childCtx = CreateChildContext(data);
-            try
-            {
-                Contexts.Push(childCtx);
-                return func(childCtx);
-            }
-            finally
-            {
-                Contexts.Pop();
-            }
+            var parentContext = (contexts.Count > 0)?contexts.Peek():null;
+            
+            if (_createStatementContextFunc == null)
+                _currentStatementContext = new StatementContext(sourceData, parentContext?._currentStatementContext);
+            else
+                _currentStatementContext = _createStatementContextFunc(sourceData, parentContext?._currentStatementContext);
         }
         
-        public abstract Task ProcessOperationAsync(OperationTemplatePart operationPart);
-        public abstract Task WriteAsync(String result);
-        protected abstract T CreateChildContext(Object? data);
+        public GeneratorContext(Stream outputStream, CreateStatementContextDelegate? getStatementContextFunc): this(null, outputStream, new Stack<GeneratorContext>(), null, null, getStatementContextFunc)
+        {
+            Contexts.Push(this);
+        }
+
+        public override Task ProcessOperationAsync(OperationTemplatePart operationPart)
+        {
+            var operation = GetOperation(operationPart);
+            return operation.PerformAsync(operationPart, this);
+        }
+
+        public override Task WriteAsync(String result)
+        {
+            var buffer = Encoding.UTF8.GetBytes(result);
+            return _outputStream.WriteAsync(buffer, 0, buffer.Length);
+        }
+
+        protected override GeneratorContext CreateChildContext(Object? data)
+        {
+            return new GeneratorContext(Operations, _outputStream, Contexts, data, FragmentType, _createStatementContextFunc);
+        }
+
+        public IDisposable OverloadStream(Stream stream)
+        {
+            return new StreamOverload(this, stream);
+        }
+
+        private class StreamOverload: IDisposable
+        {
+            private readonly Stream _originalStream;
+            private readonly GeneratorContext _context;
+
+            public StreamOverload(GeneratorContext context, Stream newStream)
+            {
+                _context = context;
+                _originalStream = _context._outputStream;
+                _context._outputStream = newStream;
+            }
+
+            public void Dispose()
+            {
+                _context._outputStream = _originalStream;
+            }
+        }
     }
 }

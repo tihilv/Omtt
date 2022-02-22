@@ -22,6 +22,12 @@ namespace Omtt.Parser.Lexical
             MarkupLiterals.SpaceSymbol, 
             MarkupLiterals.CloseTagSymbol};
 
+        private static readonly String[] CloseTagLiterals = new[]
+        {
+            MarkupLiterals.CloseTagSymbol,
+            MarkupLiterals.CloseExpression
+        };
+
         internal async Task<List<Lexem>> ParseAsync(Stream stream)
         {
             using (var streamReader = new StreamReader(stream))
@@ -37,7 +43,7 @@ namespace Omtt.Parser.Lexical
                 
             List<Lexem> result = new List<Lexem>();
 
-            ProcessContent(source, result, true, new String[0]);
+            ProcessContent(source, result, true, Array.Empty<String>());
 
             return result;
         }
@@ -65,7 +71,7 @@ namespace Omtt.Parser.Lexical
                     AddTextAndSymbol(source, result, MarkupLiterals.QuoteSymbol);
 
                 else if (!foundExitSymbol && symbol != MarkupLiterals.CloseSymbol && inTextMode)
-                    ProcessContent(source, result, false, new [] {MarkupLiterals.CloseTagSymbol, MarkupLiterals.CloseExpression});
+                    ProcessContent(source, result, false, CloseTagLiterals);
             }
         }
 

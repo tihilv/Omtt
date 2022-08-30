@@ -216,6 +216,20 @@ These variables might be used to provide some conditional formatting, for instan
 
 Note: as data access is organized using an enumerator, and streaming is used for output generation, it should be memory-safe to use `forEach` operation when transforming a big amount of data.  
 
+### distinct
+
+The operation should be used within `forEach` markup to omit values which are unchanged from the previous iteration of the loop.
+
+`<#<distinct>value to process#>`
+
+Distinct markup can be linked: if at some position of the linked group a value is changed, then all further linked values will be treated as changed.
+
+`<#<distinct link="1">{{this.A}}#><#<distinct>{{this.B}}#><#<distinct link="0">{{this.C}}#>`
+
+Instead of passing value to compare as inner part, it can be provided as source expression.
+
+`<#<distinct>{{this.A}}#><#<distinct source="this.A">{{this.B}}#>`
+
 ### group
 
 The operation, treating `source` expression as `IEnumerable`, groups its content by the `key` expression and then repeats the inner template for every group.

@@ -293,6 +293,60 @@ namespace Omtt.Tests
         }
         
         [Test]
+        public async Task DistinctTest()
+        {
+            using (var inputStream = GetInputStream("<#<forEach source=\"this\"><#<distinct>{{this.A}}#><#<distinct>{{this.B}}#>#>"))
+            {
+                var list = new List<TestClassC>() {
+                    new() {A = 1, B = "q"},
+                    new() {A = 2, B = "q"},
+                    new() {A = 2, B = "q"},
+                    new() {A = 2, B = "w"},
+                };
+                
+                var generator = await TemplateTransformer.CreateAsync(inputStream);
+                var result = await generator.GenerateTextAsync(list);
+                Assert.AreEqual($"1q2w", result);
+            }
+        }
+        
+        [Test]
+        public async Task LinkedDistinctTest()
+        {
+            using (var inputStream = GetInputStream("<#<forEach source=\"this\"><#<distinct link=\"1\">{{this.A}}#><#<distinct>{{this.B}}#><#<distinct link=\"0\">{{this.C}}#><#<distinct>{{this.D}}#>#>"))
+            {
+                var list = new List<TestClassC>() {
+                    new() {A = 1, B = "q", C = 1, D = 1},
+                    new() {A = 2, B = "q", C = 1, D = 1},
+                    new() {A = 2, B = "q", C = 1, D = 1},
+                    new() {A = 2, B = "w", C = 1, D = 1},
+                };
+                
+                var generator = await TemplateTransformer.CreateAsync(inputStream);
+                var result = await generator.GenerateTextAsync(list);
+                Assert.AreEqual($"1q112q1w1", result);
+            }
+        }
+        
+        [Test]
+        public async Task DistinctBySourceTest()
+        {
+            using (var inputStream = GetInputStream("<#<forEach source=\"this\"><#<distinct>{{this.A}}#><#<distinct source=\"this.A\">{{this.B}}#>#>"))
+            {
+                var list = new List<TestClassC>() {
+                    new() {A = 1, B = "q"},
+                    new() {A = 2, B = "q"},
+                    new() {A = 2, B = "q"},
+                    new() {A = 2, B = "w"},
+                };
+                
+                var generator = await TemplateTransformer.CreateAsync(inputStream);
+                var result = await generator.GenerateTextAsync(list);
+                Assert.AreEqual($"1q2q", result);
+            }
+        }
+        
+        [Test]
         public async Task GroupTemplateTest()
         {
             var templateData = PrepareDataForGroups();
@@ -324,7 +378,6 @@ namespace Omtt.Tests
                 Assert.AreEqual($"3a4b5c", result);
             }
         }
-
         
         [Test]
         public async Task WriteDataTest()
@@ -409,6 +462,14 @@ namespace Omtt.Tests
         {
             public Int32 MyInt { get; set; }
             public Decimal[] Decimals { get; set; }
+        }
+
+        class TestClassC
+        {
+            public Int32 A { get; set; }
+            public String B { get; set; }
+            public Byte C { get; set; }
+            public Int32 D { get; set; }
         }
     }
 }

@@ -34,6 +34,7 @@ namespace Omtt.Generator
             AddOperation(new IfOperation());
             AddOperation(new ForEachOperation());
             AddOperation(new GroupOperation());
+            AddOperation(new DistinctOperation());
             AddOperation(new FragmentOperation());
             AddOperation(new CodeOperation());
         }

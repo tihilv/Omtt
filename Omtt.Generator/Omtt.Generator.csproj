@@ -9,7 +9,7 @@
         <Description>One More Template Transformer - powerful and flexible template engine for .NET</Description>
         <PackageProjectUrl>https://github.com/tihilv/Omtt</PackageProjectUrl>
         <RepositoryUrl>https://github.com/tihilv/Omtt</RepositoryUrl>
-        <Version>1.2.1</Version>
+        <Version>1.2.2</Version>
     </PropertyGroup>
 
     <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">

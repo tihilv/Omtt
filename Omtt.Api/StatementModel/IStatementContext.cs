@@ -9,6 +9,11 @@ namespace Omtt.Api.StatementModel
     public interface IStatementContext
     {
         /// <summary>
+        /// Parent statement context if any
+        /// </summary>
+        IStatementContext? Parent { get; }
+
+        /// <summary>
         /// Current data object.
         /// </summary>
         Object? CurrentData { get; }

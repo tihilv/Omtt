@@ -12,6 +12,7 @@ namespace Omtt.Statements
 
         private Dictionary<String, Object?>? _localVariables;
 
+        public IStatementContext? Parent => _parent;
         public Object? CurrentData => _currentData;
 
         public StatementContext(Object? currentData, IStatementContext? parent)

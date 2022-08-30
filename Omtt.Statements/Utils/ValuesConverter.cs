@@ -4,38 +4,37 @@ using System.Collections.Concurrent;
 using System.Linq.Expressions;
 using System.Reflection;
 using Omtt.Api.DataModel;
-using Omtt.Api.Exceptions;
 
 namespace Omtt.Statements.Utils
 {
     internal static class ValuesConverter
     {
-        internal static Object? GetArrayElement(Object? obj, Object? arrayIndex)
+        internal static Object? GetCollectionElement(Object? obj, Object? arrayIndex)
         {
             if (obj != null)
             {
-                Int32? index = ConvertToInt(arrayIndex);
+                if (arrayIndex != null && obj is IDictionary dictionary)
+                    return dictionary[Convert.ChangeType(arrayIndex, GetDictionaryKeyType(dictionary))];
 
-                if (index != null)
+                if (arrayIndex != null)
                 {
+                    var index = ConvertToInt(arrayIndex);
                     if (obj is IArrayObject arrayObject)
-                        return arrayObject[index.Value];
+                        return arrayObject[index];
 
-                    return ((IList) obj)[index.Value];
+                    return ((IList) obj)[index];
                 }
             }
 
             return obj;
         }
 
-        internal static void SetArrayElement(Object? obj, Object? arrayIndex, Object? value)
+        internal static void SetCollectionElement(Object? obj, Object? arrayIndex, Object? value)
         {
-            Int32? index = ConvertToInt(arrayIndex);
-
             if (obj == null)
                 throw new ArgumentNullException(nameof(obj));
 
-            if (index == null)
+            if (arrayIndex == null)
                 throw new ArgumentNullException(nameof(arrayIndex));
 
             var genericType = GetListType(obj);
@@ -44,20 +43,25 @@ namespace Omtt.Statements.Utils
             if (valueToAssign != null && valueToAssign.GetType() != genericType)
                 valueToAssign = Convert.ChangeType(valueToAssign, genericType);
 
-            if (obj is IArrayObject arrayObject)
-                arrayObject[index.Value] = valueToAssign;
+            if (obj is IDictionary dictionary)
+                dictionary[Convert.ChangeType(arrayIndex, GetDictionaryKeyType(dictionary))] = valueToAssign;
 
-            else if (obj is IList list)
-                list[index.Value] = valueToAssign;
             else
-                throw new ArrayTypeMismatchException("Object is not an array.");
+            {
+                Int32? index = ConvertToInt(arrayIndex);
+
+                if (obj is IArrayObject arrayObject)
+                    arrayObject[index.Value] = valueToAssign;
+
+                else if (obj is IList list)
+                    list[index.Value] = valueToAssign;
+                else
+                    throw new ArrayTypeMismatchException("Object is not an array.");
+            }
         }
 
-        private static Int32? ConvertToInt(Object? obj)
+        private static Int32 ConvertToInt(Object? obj)
         {
-            if (obj == null)
-                return null;
-
             if (obj is SourceScheme)
                 return -8391;
 
@@ -127,5 +131,16 @@ namespace Omtt.Statements.Utils
 
             return type;
         }
+        
+        private static Type GetDictionaryKeyType(Object listObj)
+        {
+            var typeArguments = listObj.GetType().GenericTypeArguments;
+            
+            if (typeArguments.Length < 2)
+                throw new ArrayTypeMismatchException($"List element type of '{listObj.GetType()}' is not defined.");
+
+            return typeArguments[0];
+        }
+        
     }
 }

@@ -375,6 +375,30 @@ namespace Omtt.Tests
             }
         }
         
+        [Test]
+        public async Task DictionaryStringObjectTest()
+        {
+            var model = new { Dict = new Dictionary<string, string>() { ["A"] = "first", ["B"] = "second" } };
+            using (var inputStream = GetInputStream("{{this.Dict['B']}} {{this.Dict['A']}}"))
+            {
+                var generator = await TemplateTransformer.CreateAsync(inputStream);
+                var result = await generator.GenerateTextAsync(model);
+                Assert.AreEqual("second first", result);
+            }
+        }
+
+        [Test]
+        public async Task DictionaryIntegerObjectTest()
+        {
+            var model = new { Dict = new Dictionary<int, string>() { [5] = "first", [9] = "second" } };
+            using (var inputStream = GetInputStream("{{this.Dict[9]}} {{this.Dict[5]}}"))
+            {
+                var generator = await TemplateTransformer.CreateAsync(inputStream);
+                var result = await generator.GenerateTextAsync(model);
+                Assert.AreEqual("second first", result);
+            }
+        }
+        
         class TestClassA
         {
             public String Str { get; set; }

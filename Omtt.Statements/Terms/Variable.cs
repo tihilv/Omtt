@@ -38,7 +38,7 @@ namespace Omtt.Statements.Terms
                     if (finalArrayObj == null)
                         throw new ArrayTypeMismatchException($"List '{pair.Name}' is not defined.");
                     
-                    ValuesConverter.SetArrayElement(finalArrayObj, indexObj, value);
+                    ValuesConverter.SetCollectionElement(finalArrayObj, indexObj, value);
                 }
                 else
                 {
@@ -76,7 +76,7 @@ namespace Omtt.Statements.Terms
             if (obj != null && pair.ArrayExpression != null)
             {
                 var indexObject = pair.ArrayExpression.Calculate(context);
-                return ValuesConverter.GetArrayElement(obj, indexObject);
+                return ValuesConverter.GetCollectionElement(obj, indexObject);
             }
 
             return obj;

@@ -345,6 +345,24 @@ namespace Omtt.Tests
                 Assert.AreEqual($"1q2q", result);
             }
         }
+                
+        [Test]
+        public async Task SortTest()
+        {
+            using (var inputStream = GetInputStream("<#<sort source=\"this\" clause1=\"this.A\" clause2=\"this.B\" clause3-=\"this.C\"><#<forEach source=\"this\">{{this.D}}#>#>"))
+            {
+                var list = new List<TestClassC>() {
+                    new() {A = 1, B = "6", C = 1, D = 1},
+                    new() {A = 2, B = "7", C = 2, D = 2},
+                    new() {A = 2, B = null, C = 3, D = 3},
+                    new() {A = 2, B = "7", C = 4, D = 4},
+                };
+                
+                var generator = await TemplateTransformer.CreateAsync(inputStream);
+                var result = await generator.GenerateTextAsync(list);
+                Assert.AreEqual($"1342", result);
+            }
+        }
         
         [Test]
         public async Task GroupTemplateTest()

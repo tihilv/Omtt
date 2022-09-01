@@ -230,6 +230,19 @@ Instead of passing value to compare as inner part, it can be provided as source 
 
 `<#<distinct>{{this.A}}#><#<distinct source="this.A">{{this.B}}#>`
 
+### sort
+
+The operation reorders `IEnumerable` input according to a set of sorting clauses.
+
+`<#<sort source="expression" clause1="per-element property 1" clause2-="reverse per-element property 2"...>inner part where this is sorted expression#>`
+
+Sorting is perfomed based on `IEnumerable` interface implementation of sorting properties.
+
+Reverse sorting order is implemented via `-` (minus) sign after the name of sorting clause.
+
+Note: sorting suppose to have all the data in memory before further processing, so avoid sorting of large data sets.
+
+
 ### group
 
 The operation, treating `source` expression as `IEnumerable`, groups its content by the `key` expression and then repeats the inner template for every group.

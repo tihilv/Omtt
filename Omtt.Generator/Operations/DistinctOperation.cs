@@ -29,7 +29,7 @@ namespace Omtt.Generator.Operations
             part.Parameters.TryGetValue(DefaultTemplateParameterNames.Source, out var sourceExpr);
             var sourceValue = ctx.EvaluateStatement(sourceExpr)?.ToString();
             
-            string content;
+            String content;
             using (var memoryStream = new MemoryStream())
             {
                 using (ctx.OverloadStream(memoryStream))
@@ -43,7 +43,7 @@ namespace Omtt.Generator.Operations
             ctx.StatementContext.TryFindVariable(varName, out var prevValue);
 
             var valueToCompare = sourceValue ?? content;
-            bool valueChanged = !valueToCompare.Equals(prevValue);
+            Boolean valueChanged = !valueToCompare.Equals(prevValue);
             if (valueChanged)
                 SetLinkedValueChanged(ctx, varName, valueToCompare, linkedElementsChanged);
 
@@ -57,7 +57,7 @@ namespace Omtt.Generator.Operations
             part.Parameters.TryGetValue(DefaultTemplateParameterNames.Link, out var linkedExpr);
             var linked = (linkedExpr != null) ? ctx.EvaluateStatement(linkedExpr)?.ToString() : null;
 
-            bool? linkedElementsChanged = null; 
+            Boolean? linkedElementsChanged = null; 
             if (linked == "1")
             {
                 ctx.StatementContext.Parent!.SetVariable(DistinctControlVariableName, LinkTracking, true);

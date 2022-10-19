@@ -91,14 +91,15 @@ namespace Omtt.Generator
         /// <param name="outputStream">Output stream for the result</param>
         /// <param name="createStatementContextDelegate">An optional delegate for creation a custom statement context</param>
         /// <returns></returns>
-        public Task GenerateAsync(Object? data, Stream outputStream, CreateStatementContextDelegate? createStatementContextDelegate = null)
+        public async Task GenerateAsync(Object? data, Stream outputStream, CreateStatementContextDelegate? createStatementContextDelegate = null)
         {
             using (var streamWriter = GeneratorContext.CreateStreamWriter(outputStream))
             {
                 var ctx = new GeneratorContext(streamWriter, data, createStatementContextDelegate);
                 ctx.SetOperations(_operations);
                 ctx.StatementContext.AddFunctions(_functions);
-                return ctx.ExecuteAsync(_templateModel);
+                await ctx.ExecuteAsync(_templateModel);
+                await streamWriter.FlushAsync();
             }
         }
 

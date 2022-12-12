@@ -9,7 +9,7 @@
         <Description>Statement processor library for Omtt (One More Template Transformer)</Description>
         <PackageProjectUrl>https://github.com/tihilv/Omtt</PackageProjectUrl>
         <RepositoryUrl>https://github.com/tihilv/Omtt</RepositoryUrl>
-        <Version>1.2.5</Version>
+        <Version>1.2.6</Version>
     </PropertyGroup>
 
     <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">

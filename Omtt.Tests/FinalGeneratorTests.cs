@@ -473,7 +473,8 @@ namespace Omtt.Tests
         [Test]
         public async Task TimeZoneTemplateTest()
         {
-            var ths = new TestClassD() { MyDateTime = new DateTime(2000, 1, 1, 10, 15, 25, DateTimeKind.Utc), TimeZoneInfo = TimeZoneInfo.FindSystemTimeZoneById("Taipei Standard Time")};
+            var timeZone = TimeZoneInfo.GetSystemTimeZones().FirstOrDefault(z => z.BaseUtcOffset == TimeSpan.FromHours(8));
+            var ths = new TestClassD() { MyDateTime = new DateTime(2000, 1, 1, 10, 15, 25, DateTimeKind.Utc), TimeZoneInfo = timeZone};
 
             using (var inputStream = GetInputStream("<#<timeZone key=\"this.TimeZoneInfo\">{{this.MyDateTime|HH:mm:ss|de}}#>"))
             {

@@ -470,6 +470,23 @@ namespace Omtt.Tests
             }
         }
         
+        [Test]
+        public async Task TimeZoneTemplateTest()
+        {
+            var ths = new TestClassD() { MyDateTime = new DateTime(2000, 1, 1, 10, 15, 25, DateTimeKind.Utc), TimeZoneInfo = TimeZoneInfo.FindSystemTimeZoneById("Taipei Standard Time")};
+
+            using (var inputStream = GetInputStream("<#<timeZone key=\"this.TimeZoneInfo\">{{this.MyDateTime|HH:mm:ss|de}}#>"))
+            {
+                var generator = await TemplateTransformer.CreateAsync(inputStream);
+                var result = await generator.GenerateTextAsync(ths);
+                Assert.AreEqual($"18:15:25", result);
+
+                ths.MyDateTime = new DateTime(2000, 1, 1, 10, 15, 25, DateTimeKind.Local);
+                result = await generator.GenerateTextAsync(ths);
+                Assert.AreEqual($"10:15:25", result);
+            }
+        }
+        
         class TestClassA
         {
             public String Str { get; set; }
@@ -488,6 +505,12 @@ namespace Omtt.Tests
             public String B { get; set; }
             public Byte C { get; set; }
             public Int32 D { get; set; }
+        }
+        
+        class TestClassD
+        {
+            public DateTime MyDateTime { get; set; }
+            public TimeZoneInfo TimeZoneInfo { get; set; }
         }
     }
 }

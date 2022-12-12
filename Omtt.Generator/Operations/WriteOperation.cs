@@ -81,7 +81,13 @@ namespace Omtt.Generator.Operations
             if (!String.IsNullOrEmpty(format))
             {
                 if (value is DateTime dt)
+                {
+                    if (dt.Kind != DateTimeKind.Local)
+                        if (generatorContext.StatementContext.TryFindVariable(TimeZoneOperation.TimeZoneVariableName, out var timeZoneObject) && timeZoneObject != null)
+                            dt = TimeZoneInfo.ConvertTimeFromUtc(dt, (TimeZoneInfo)timeZoneObject);
+
                     return dt.ToString(format, culture);
+                }
 
                 if (value is Byte bt)
                     return bt.ToString(format, culture);

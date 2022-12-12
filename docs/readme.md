@@ -270,6 +270,15 @@ For the current moment, `xml` and `html` fragment types are supported. Further f
 
 The operation preserves the current object.
 
+### timeZone
+A service operation that might be used together with `write` operation. It specifies the time zone allowing to convert DateTime objects from Utc and Unknown time zone to the specified one. 
+
+`<#<timeZone key="expression">inner part#>`
+
+Expression can be an instance of `TimeZoneInfo` class or a string representing a name of a time zone (see [Microsoft Time Zone Index Values](https://learn.microsoft.com/en-us/previous-versions/windows/embedded/ms912391(v=winembedded.11))).
+
+The operation preserves the current object.
+
 ### code
 
 A service operation that executes the expression in its `source` attribute. Might be used for simple data aggregation.

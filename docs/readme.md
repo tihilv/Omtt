@@ -80,6 +80,35 @@ Assert.AreEqual("Hello, Alice and Bob and !", result);
 Here the full syntax of Omtt markup is presented. The operation starts with `<#` tag followed by operation tag `<forEach source="this">` with `source` parameter set to `this`. The rest of the text before closing tag `#>` represents the template for each element in the enumeration: `{{this.Name}} and `.   
 Note: `this` inside the loop body is moved to the currently processing element. 
 
+### Dictionaries
+Native support of dictionaries is not implemented, but non-structured properties can be supported using `IOptionalPropertySetObject` interface:
+```c#
+var generator = TemplateTransformer.Create("{{this.FirstName}} is {{this.Position}}");
+var result = await generator.GenerateTextAsync(new MyOptionalPropertySetObject() { FirstName = "Bob", ["Position"] = "Manager" });
+Assert.AreEqual("Bob is Manager", result);
+```
+
+where:
+
+```c#
+private sealed class MyOptionalPropertySetObject : IOptionalPropertySetObject
+{
+    private readonly Dictionary<string, object> _innerDict = new Dictionary<string, object>();
+    public string FirstName { get; set; }
+
+    public object this[string key]
+    {
+        get => _innerDict[key];
+        set => _innerDict[key] = value;
+    }
+
+    public bool TryGetValue(string key, out object value)
+    {
+        return _innerDict.TryGetValue(key, out value);
+    }
+}
+```
+
 ### Conditions
 As we see, the resulting string is not formatted very nicely as `and` string is added on each iteration, including the last one. This can be fixed using `if` markup:
 ```c#

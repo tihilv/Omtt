@@ -29,6 +29,77 @@ namespace Omtt.Tests
         }
 
         [Test]
+        public async Task OptionalPropertySetObjectTest()
+        {
+            using (var inputStream = GetInputStream("{{this.FirstName}} is {{this.Position}}"))
+            {
+                var generator = await TemplateTransformer.CreateAsync(inputStream);
+                using (var outputStream = new MemoryStream())
+                {
+                    var data = new MyOptionalPropertySetObject()
+                    {
+                        FirstName = "Bob",
+                        ["Position"] = "Manager"
+                    };
+                    
+                    await generator.GenerateAsync(data, outputStream);
+                    outputStream.Position = 0;
+
+                    using (var streamReader = new StreamReader(outputStream))
+                    {
+                        var result = streamReader.ReadToEnd().Trim();
+                        Assert.AreEqual("Bob is Manager", result);
+                    }
+                }
+            }
+        }
+        
+        [Test]
+        public async Task OptionalPropertySetObjectExtractionSequenceTest()
+        {
+            using (var inputStream = GetInputStream("{{this.FirstName}} is {{this.Position}}"))
+            {
+                var generator = await TemplateTransformer.CreateAsync(inputStream);
+                using (var outputStream = new MemoryStream())
+                {
+                    var data = new MyOptionalPropertySetObject()
+                    {
+                        FirstName = "Bob",
+                        ["Position"] = "Manager",
+                        ["FirstName"] = "Alice"
+                    };
+                    
+                    await generator.GenerateAsync(data, outputStream);
+                    outputStream.Position = 0;
+
+                    using (var streamReader = new StreamReader(outputStream))
+                    {
+                        var result = streamReader.ReadToEnd().Trim();
+                        Assert.AreEqual("Alice is Manager", result);
+                    }
+                }
+            }
+        }
+
+        private sealed class MyOptionalPropertySetObject : IOptionalPropertySetObject
+        {
+            private readonly Dictionary<string, object> _innerDict = new Dictionary<string, object>();
+            public string FirstName { get; set; }
+
+            public object this[string key]
+            {
+                get => _innerDict[key];
+                set => _innerDict[key] = value;
+            }
+
+            public bool TryGetValue(string key, out object value)
+            {
+                return _innerDict.TryGetValue(key, out value);
+            }
+        }
+
+        
+        [Test]
         public async Task SimpleContentTest()
         {
             using (var inputStream = GetInputStream("Hello <#<write source=\"1+3\">#> = 4"))

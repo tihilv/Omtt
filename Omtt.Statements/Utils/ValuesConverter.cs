@@ -74,7 +74,15 @@ namespace Omtt.Statements.Utils
                 return null;
 
             if (obj is IPropertySetObject sourceData)
-                return sourceData[propertyName];
+            {
+                if (obj is IOptionalPropertySetObject optionalPropertySetObject)
+                {
+                    if (optionalPropertySetObject.TryGetValue(propertyName, out var value))
+                        return value;
+                }
+                else
+                    return sourceData[propertyName];
+            }
 
             return GetPropertyValueExpr(obj, propertyName);
         }

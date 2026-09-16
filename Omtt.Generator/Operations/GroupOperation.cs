@@ -22,11 +22,11 @@ namespace Omtt.Generator.Operations
 
             if (ctx.EvaluateStatement(sourceExpr) is IEnumerable valueCollection)
             {
-                var dictionary = new Dictionary<Object?, KeyValueList>();
+                var dictionary = new Dictionary<Object, KeyValueList>();
                 
                 foreach (var childPart in valueCollection)
                 {
-                    var key = ctx.WithContext(childPart, childContext => ((IGeneratorContext)childContext).EvaluateStatement(keyExpr));
+                    var key = ctx.WithContext(childPart, childContext => ((IGeneratorContext)childContext).EvaluateStatement(keyExpr))!;
                     if (!dictionary.TryGetValue(key, out var list))
                     {
                         list = new KeyValueList(key);

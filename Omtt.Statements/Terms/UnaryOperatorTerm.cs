@@ -41,7 +41,7 @@ namespace Omtt.Statements.Terms
                 
                 var method = termValue.GetType().GetMethod("op_Subtraction");
                 if (method != null)
-                    return method.Invoke(null, new[] {Activator.CreateInstance(termValue.GetType()), termValue});
+                    return method.Invoke(null, new[] {Activator.CreateInstance(termValue.GetType()), termValue})!;
             }
 
             throw new InvalidOperationException($"Unknown operation {_op} for the given operands.");

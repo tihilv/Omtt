@@ -1,23 +1,8 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
-        <TargetFramework>netstandard2.0</TargetFramework>
-        <LangVersion>9</LangVersion>
-        <Nullable>enable</Nullable>
         <Title>Omtt Parser</Title>
-        <Authors>Ilia Tikhonov</Authors>
         <Description>Text parser library for Omtt (One More Template Transformer)</Description>
-        <PackageProjectUrl>https://github.com/tihilv/Omtt</PackageProjectUrl>
-        <RepositoryUrl>https://github.com/tihilv/Omtt</RepositoryUrl>
-        <Version>1.2.6</Version>
-    </PropertyGroup>
-
-    <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
-      <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
-    </PropertyGroup>
-
-    <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
-      <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
     </PropertyGroup>
 
     <ItemGroup>

@@ -204,7 +204,7 @@ namespace Omtt.Statements.Terms
                 throw new InvalidOperationException($"Undefined operator {op} for type {current.GetType()}.");
 
             current = method.Invoke(null, new[] {current, second});
-            return current;
+            return current!;
         }
     }
 }

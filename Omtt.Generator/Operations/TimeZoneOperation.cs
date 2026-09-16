@@ -22,7 +22,7 @@ namespace Omtt.Generator.Operations
             if (timeZoneValue is TimeZoneInfo tzi)
                 timeZoneInfo = tzi;
             else if (timeZoneValue != null)
-                timeZoneInfo = TimeZoneInfo.FindSystemTimeZoneById(timeZoneValue.ToString());
+                timeZoneInfo = TimeZoneInfo.FindSystemTimeZoneById(timeZoneValue.ToString()!);
             else
                 throw new ArgumentNullException("TimeZone is not specified.");
             
